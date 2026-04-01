@@ -3,12 +3,10 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Mesh Schedule Content Pipeline</title>
-
+<title>Mesh Schedule Super God Mode</title>
 <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
-
 <style>
   :root{
     --ui-bg:#111;
@@ -17,466 +15,118 @@
     --story-bg:#000;
     --fg:#fff;
     --muted:rgba(255,255,255,.55);
-    --muted2:rgba(255,255,255,.35);
     --line:rgba(255,255,255,.08);
   }
 
   *{ box-sizing:border-box; }
-
-  html,body{
-    margin:0;
-    background:var(--ui-bg);
-    color:#fff;
-    font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
-  }
-
-  body{
-    min-height:100vh;
-    display:flex;
-    gap:20px;
-    align-items:flex-start;
-    justify-content:center;
-    padding:20px;
-  }
+  html,body{ margin:0; background:var(--ui-bg); color:#fff; font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+  body{ min-height:100vh; display:flex; gap:20px; align-items:flex-start; justify-content:center; padding:20px; }
 
   .panel{
-    width:340px;
-    background:var(--panel);
-    border:1px solid var(--panel-border);
-    border-radius:18px;
-    padding:14px;
-    display:flex;
-    flex-direction:column;
-    gap:12px;
-    max-height:calc(100vh - 40px);
-    overflow:auto;
+    width:370px; background:var(--panel); border:1px solid var(--panel-border); border-radius:18px;
+    padding:14px; display:flex; flex-direction:column; gap:12px; max-height:calc(100vh - 40px); overflow:auto;
   }
+  .panel h2{ margin:0; font-size:14px; font-weight:700; letter-spacing:.02em; }
+  .section{ border-top:1px solid #1b1b1b; padding-top:12px; }
+  .section h3{ margin:0 0 8px; font-size:11px; letter-spacing:.14em; color:#ddd; text-transform:uppercase; }
+  .row,.seg{ display:flex; gap:8px; flex-wrap:wrap; }
+  .seg{ gap:6px; }
 
-  .panel h2{
-    margin:0;
-    font-size:14px;
-    font-weight:700;
-    letter-spacing:.02em;
+  button,.seg button{
+    appearance:none; border:1px solid #2a2a2a; background:#101010; color:#fff; padding:8px 10px;
+    border-radius:999px; font-size:11px; font-weight:700; cursor:pointer; letter-spacing:.04em;
   }
+  button:hover,.seg button:hover{ border-color:#555; }
+  .seg button.active{ background:#fff; color:#000; border-color:#fff; }
+  button.danger{ border-color:#5a2020; color:#ffb8b8; }
 
-  .section{
-    border-top:1px solid #1b1b1b;
-    padding-top:12px;
-  }
+  label{ display:flex; align-items:center; gap:8px; font-size:12px; color:#ddd; margin:6px 0; }
+  .field{ display:flex; flex-direction:column; gap:6px; margin-bottom:10px; }
+  .field span{ font-size:11px; text-transform:uppercase; letter-spacing:.08em; color:#bdbdbd; }
+  input,textarea,select{ width:100%; background:#0d0d0d; border:1px solid #262626; color:#fff; border-radius:10px; padding:10px 11px; font:inherit; font-size:12px; }
+  input[type="color"]{ height:38px; padding:4px; }
+  textarea{ min-height:78px; resize:vertical; }
+  .small{ font-size:10px; color:#9b9b9b; line-height:1.4; }
+  .selected{ padding:10px; border:1px solid #222; background:#101010; border-radius:12px; font-size:11px; line-height:1.45; color:#ddd; }
+  .range-line{ display:flex; align-items:center; gap:10px; }
+  .range-line input[type="range"]{ flex:1; }
 
-  .section h3{
-    margin:0 0 8px;
-    font-size:11px;
-    letter-spacing:.14em;
-    color:#ddd;
-  }
-
-  .row{
-    display:flex;
-    gap:8px;
-    flex-wrap:wrap;
-  }
-
-  .seg{
-    display:flex;
-    gap:6px;
-    flex-wrap:wrap;
-  }
-
-  button,
-  .seg button{
-    appearance:none;
-    border:1px solid #2a2a2a;
-    background:#101010;
-    color:#fff;
-    padding:8px 10px;
-    border-radius:999px;
-    font-size:11px;
-    font-weight:700;
-    cursor:pointer;
-    letter-spacing:.04em;
-  }
-
-  button:hover,
-  .seg button:hover{
-    border-color:#555;
-  }
-
-  .seg button.active{
-    background:#fff;
-    color:#000;
-    border-color:#fff;
-  }
-
-  button.danger{
-    border-color:#5a2020;
-    color:#ffb8b8;
-  }
-
-  label{
-    display:flex;
-    align-items:center;
-    gap:8px;
-    font-size:12px;
-    color:#ddd;
-    margin:6px 0;
-  }
-
-  .field{
-    display:flex;
-    flex-direction:column;
-    gap:6px;
-    margin-bottom:10px;
-  }
-
-  .field span{
-    font-size:11px;
-    text-transform:uppercase;
-    letter-spacing:.08em;
-    color:#bdbdbd;
-  }
-
-  input, textarea, select{
-    width:100%;
-    background:#0d0d0d;
-    border:1px solid #262626;
-    color:#fff;
-    border-radius:10px;
-    padding:10px 11px;
-    font:inherit;
-    font-size:12px;
-  }
-
-  textarea{
-    min-height:78px;
-    resize:vertical;
-  }
-
-  .small{
-    font-size:10px;
-    color:#9b9b9b;
-    line-height:1.4;
-  }
-
-  .selected{
-    padding:10px;
-    border:1px solid #222;
-    background:#101010;
-    border-radius:12px;
-    font-size:11px;
-    line-height:1.45;
-    color:#ddd;
-  }
-
-  .range-line{
-    display:flex;
-    align-items:center;
-    gap:10px;
-  }
-
-  .range-line input[type="range"]{
-    flex:1;
-  }
-
-  .preview-shell{
-    flex:0 0 auto;
-    position:sticky;
-    top:20px;
-  }
-
+  .preview-shell{ flex:0 0 auto; position:sticky; top:20px; }
   .preview-frame{
-    width:min(420px, calc((100vh - 40px) * 9 / 16));
-    aspect-ratio:9 / 16;
-    display:flex;
-    align-items:flex-start;
-    justify-content:flex-start;
-    overflow:hidden;
-    background:transparent;
-    border-radius:20px;
+    width:min(420px, calc((100vh - 40px) * 9 / 16)); aspect-ratio:9 / 16; display:flex; align-items:center; justify-content:center;
+    overflow:hidden; border-radius:20px;
+    background:
+      linear-gradient(45deg, #222 25%, transparent 25%),
+      linear-gradient(-45deg, #222 25%, transparent 25%),
+      linear-gradient(45deg, transparent 75%, #222 75%),
+      linear-gradient(-45deg, transparent 75%, #222 75%);
+    background-size:20px 20px; background-position:0 0, 0 10px, 10px -10px, -10px 0px;
   }
+  .preview-viewport{ width:1080px; height:1920px; transform-origin:center center; overflow:hidden; flex:0 0 auto; }
+  #exportStage{ position:fixed; left:-99999px; top:-99999px; width:1080px; height:1920px; overflow:hidden; pointer-events:none; }
 
-  .preview-viewport{
-    width:1080px;
-    height:1920px;
-    transform-origin:top left;
-    border-radius:0;
-    overflow:hidden;
-  }
+  .story-canvas{ width:1080px; height:1920px; color:#fff; overflow:hidden; position:relative; isolation:isolate; background:#000; }
+  .story-canvas.transparent{ background:transparent; }
+  .mesh-bg{ position:absolute; inset:0; z-index:0; pointer-events:none; }
+  .story-overlay{ position:absolute; inset:0; z-index:1; pointer-events:none; background:linear-gradient(to bottom, rgba(0,0,0,.12), rgba(0,0,0,.32)); }
+  .story-canvas.transparent .story-overlay{ background:none; }
 
-  /* SHARED STORY */
-  .story-canvas{
-    width:1080px;
-    height:1920px;
-    background:var(--story-bg);
-    color:var(--fg);
-    padding:44px 48px 38px;
-    display:flex;
-    flex-direction:column;
-    overflow:hidden;
-    position:relative;
-  }
+  .story-inner{ position:relative; z-index:2; width:100%; height:100%; display:flex; flex-direction:column; min-height:0; padding:140px 40px 180px; }
+  .story-inner.tight-safe{ padding-top:110px; padding-bottom:150px; }
+  .story-inner.relaxed-safe{ padding-top:160px; padding-bottom:220px; }
+  .safe-zone-guide{ position:absolute; left:40px; right:40px; top:140px; bottom:180px; border:2px dashed rgba(255,255,255,.14); border-radius:16px; z-index:3; pointer-events:none; }
 
-  .story-canvas.transparent{
-    background:transparent;
-  }
+  .story-label{ font-size:28px; letter-spacing:.28em; color:var(--muted); text-transform:uppercase; margin-bottom:24px; flex:0 0 auto; }
+  .story-content{ flex:1; min-height:0; display:flex; flex-direction:column; }
+  .columns{ flex:1; display:grid; min-height:0; }
+  .col{ display:flex; flex-direction:column; min-height:0; }
 
-  .story-label{
-    font-size:28px;
-    letter-spacing:.28em;
-    color:var(--muted);
-    text-transform:uppercase;
-    margin-bottom:24px;
-    flex:0 0 auto;
-  }
+  .show{ opacity:0; transform:translateY(12px); animation:fadeUp .45s cubic-bezier(.16,1,.3,1) forwards; cursor:pointer; }
+  .no-anim .show,.no-anim .day-card,.no-anim .lineup-item,.no-anim .tonight-card{ animation:none !important; opacity:1 !important; transform:none !important; }
+  @keyframes fadeUp{ to{ opacity:1; transform:translateY(0); } }
 
-  .story-content{
-    flex:1;
-    min-height:0;
-    display:flex;
-    flex-direction:column;
-  }
+  .columns.month{ grid-template-columns:1fr 1fr; gap:18px; }
+  .columns.month .show{ display:grid; grid-template-columns:52px 1fr auto; gap:8px; align-items:center; padding:2px 0; line-height:1.05; }
+  .columns.month .day{ font-size:18px; color:var(--muted); }
+  .columns.month .title{ font-size:20px; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .columns.month .time{ font-size:18px; white-space:nowrap; }
 
-  .columns{
-    flex:1;
-    display:grid;
-    min-height:0;
-  }
+  .columns.week{ grid-template-columns:1fr; gap:0; }
+  .columns.week.two-col{ grid-template-columns:1fr 1fr; gap:24px; }
+  .columns.week .show{ display:grid; grid-template-columns:68px 1fr auto; gap:14px; align-items:center; padding:13px 0; border-bottom:1px solid var(--line); line-height:1.05; }
+  .columns.week.two-col .show{ grid-template-columns:54px 1fr auto; gap:10px; padding:7px 0; }
+  .columns.week .day{ font-size:22px; color:var(--muted); }
+  .columns.week .title{ font-size:24px; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .columns.week.two-col .title{ font-size:20px; }
+  .columns.week .time{ font-size:19px; white-space:nowrap; }
 
-  .col{
-    display:flex;
-    flex-direction:column;
-    min-height:0;
-  }
+  .day-stack{ flex:1; display:flex; flex-direction:column; justify-content:flex-start; gap:28px; min-height:0; padding-top:6px; }
+  .day-card,.tonight-card{ border-top:1px solid var(--line); padding-top:18px; opacity:0; transform:translateY(16px); animation:fadeUp .55s cubic-bezier(.16,1,.3,1) forwards; cursor:pointer; }
+  .day-card.featured,.tonight-card.featured{ border-top-color:#fff; }
+  .day-card.featured .day-kicker,.day-card.featured .day-title,.tonight-card.featured .day-kicker,.tonight-card.featured .day-title{ color:#fff; }
+  .day-kicker{ font-size:24px; letter-spacing:.24em; color:var(--muted); text-transform:uppercase; margin-bottom:14px; }
+  .day-title{ font-size:50px; font-weight:800; line-height:1.02; letter-spacing:-.04em; }
+  .day-genre{ font-size:28px; color:rgba(255,255,255,.66); line-height:1.3; margin-top:14px; }
+  .day-time{ font-size:30px; margin-top:16px; letter-spacing:.08em; text-transform:uppercase; }
 
-  .show{
-    opacity:0;
-    transform:translateY(12px);
-    animation:fadeUp .45s cubic-bezier(.16,1,.3,1) forwards;
-    cursor:pointer;
-  }
-
-  .no-anim .show,
-  .no-anim .day-card,
-  .no-anim .lineup-item{
-    animation:none !important;
-    opacity:1 !important;
-    transform:none !important;
-  }
-
-  @keyframes fadeUp{
-    to{
-      opacity:1;
-      transform:translateY(0);
-    }
-  }
-
-  /* MONTH */
-  .columns.month{
-    grid-template-columns:1fr 1fr;
-    gap:18px;
-  }
-
-  .columns.month .show{
-    display:grid;
-    grid-template-columns:52px 1fr auto;
-    gap:8px;
-    align-items:center;
-    padding:2px 0;
-    line-height:1.05;
-  }
-
-  .columns.month .day{
-    font-size:18px;
-    color:var(--muted);
-  }
-
-  .columns.month .title{
-    font-size:20px;
-    font-weight:700;
-    white-space:nowrap;
-    overflow:hidden;
-    text-overflow:ellipsis;
-  }
-
-  .columns.month .time{
-    font-size:18px;
-    white-space:nowrap;
-  }
-
-  /* WEEK */
-  .columns.week{
-    grid-template-columns:1fr;
-    gap:0;
-  }
-
-  .columns.week.two-col{
-    grid-template-columns:1fr 1fr;
-    gap:24px;
-  }
-
-  .columns.week .show{
-    display:grid;
-    grid-template-columns:68px 1fr auto;
-    gap:14px;
-    align-items:center;
-    padding:13px 0;
-    border-bottom:1px solid var(--line);
-    line-height:1.05;
-  }
-
-  .columns.week.two-col .show{
-    grid-template-columns:54px 1fr auto;
-    gap:10px;
-    padding:7px 0;
-  }
-
-  .columns.week .day{
-    font-size:22px;
-    color:var(--muted);
-  }
-
-  .columns.week .title{
-    font-size:24px;
-    font-weight:700;
-    white-space:nowrap;
-    overflow:hidden;
-    text-overflow:ellipsis;
-  }
-
-  .columns.week.two-col .title{
-    font-size:20px;
-  }
-
-  .columns.week .time{
-    font-size:19px;
-    white-space:nowrap;
-  }
-
-  /* DAY / TONIGHT */
-  .day-stack{
-    flex:1;
-    display:flex;
-    flex-direction:column;
-    justify-content:flex-start;
-    gap:28px;
-    min-height:0;
-    padding-top:6px;
-  }
-
-  .day-card{
-    border-top:1px solid var(--line);
-    padding-top:18px;
-    opacity:0;
-    transform:translateY(16px);
-    animation:fadeUp .55s cubic-bezier(.16,1,.3,1) forwards;
-    cursor:pointer;
-  }
-
-  .day-card.featured{
-    border-top-color:#fff;
-  }
-
-  .day-card.featured .day-kicker,
-  .day-card.featured .day-title{
-    color:#fff;
-  }
-
-  .day-kicker{
-    font-size:24px;
-    letter-spacing:.24em;
-    color:var(--muted);
-    text-transform:uppercase;
-    margin-bottom:14px;
-  }
-
-  .day-title{
-    font-size:50px;
-    font-weight:800;
-    line-height:1.02;
-    letter-spacing:-.04em;
-  }
-
-  .day-genre{
-    font-size:28px;
-    color:rgba(255,255,255,.66);
-    line-height:1.3;
-    margin-top:14px;
-  }
-
-  .day-time{
-    font-size:30px;
-    margin-top:16px;
-    letter-spacing:.08em;
-    text-transform:uppercase;
-  }
-
-  /* LINEUP */
-  .lineup-stack{
-    flex:1;
-    display:flex;
-    flex-direction:column;
-    justify-content:flex-start;
-    gap:12px;
-    min-height:0;
-    padding-top:10px;
-  }
-
-  .lineup-item{
-    font-size:34px;
-    font-weight:800;
-    line-height:1.05;
-    letter-spacing:-.03em;
-    opacity:0;
-    transform:translateY(10px);
-    animation:fadeUp .45s cubic-bezier(.16,1,.3,1) forwards;
-  }
-
-  .lineup-sub{
-    font-size:17px;
-    color:var(--muted);
-    margin-top:3px;
-    font-weight:500;
-    letter-spacing:.04em;
-  }
-
-  #exportStage{
-    position:fixed;
-    left:-99999px;
-    top:-99999px;
-    width:1080px;
-    height:1920px;
-    overflow:hidden;
-    pointer-events:none;
-  }
+  .lineup-stack{ flex:1; display:flex; flex-direction:column; justify-content:flex-start; gap:12px; min-height:0; padding-top:10px; }
+  .lineup-item{ font-size:34px; font-weight:800; line-height:1.05; letter-spacing:-.03em; opacity:0; transform:translateY(10px); animation:fadeUp .45s cubic-bezier(.16,1,.3,1) forwards; cursor:pointer; }
+  .lineup-sub{ font-size:17px; color:var(--muted); margin-top:3px; font-weight:500; letter-spacing:.04em; }
 
   @media (max-width: 1024px){
-    body{
-      flex-direction:column;
-      align-items:center;
-    }
-
-    .preview-shell{
-      position:static;
-    }
-
-    .panel{
-      width:min(94vw, 620px);
-      max-height:none;
-    }
-
-    .preview-frame{
-      width:min(94vw, 420px);
-    }
+    body{ flex-direction:column; align-items:center; }
+    .preview-shell{ position:static; }
+    .panel{ width:min(94vw, 640px); max-height:none; }
+    .preview-frame{ width:min(94vw, 420px); }
   }
 </style>
 </head>
 <body>
-
   <div class="panel">
-    <h2>Mesh Content Pipeline</h2>
+    <h2>Mesh Super God Mode</h2>
 
     <div class="section">
-      <h3>MODE</h3>
+      <h3>Mode</h3>
       <div class="seg" id="modeSeg">
         <button class="active" data-mode="month">MONTH</button>
         <button data-mode="week">WEEK</button>
@@ -487,7 +137,7 @@
     </div>
 
     <div class="section">
-      <h3>NAVIGATION</h3>
+      <h3>Navigation</h3>
       <div class="row">
         <button id="prevBtn">PREV</button>
         <button id="todayBtn">TODAY</button>
@@ -496,22 +146,49 @@
     </div>
 
     <div class="section">
-      <h3>EXPORT / MOTION</h3>
+      <h3>Export / Motion</h3>
       <div class="row">
         <button id="pngBtn">EXPORT PNG</button>
+        <button id="transparentPngBtn">EXPORT ALPHA PNG</button>
         <button id="packBtn">EXPORT PACK ZIP</button>
+        <button id="videoBtn">EXPORT VIDEO</button>
         <button id="loopBtn">START LOOP</button>
       </div>
-      <label><input type="checkbox" id="transparentToggle"> Transparent preview / export</label>
+      <label><input type="checkbox" id="transparentToggle"> Transparent preview</label>
       <label><input type="checkbox" id="animateToggle" checked> Animate content in</label>
-      <div class="small">Export now uses html2canvas, so it should work far more reliably.</div>
+      <div class="small">Alpha PNG forces a transparent export even if the preview is black.</div>
     </div>
 
     <div class="section">
-      <h3>DISPLAY CONTROLS</h3>
+      <h3>Background</h3>
+      <label><input type="checkbox" id="meshToggle"> Mesh animated background</label>
+      <label><input type="checkbox" id="blurToggle"> Blur mesh</label>
+      <label><input type="checkbox" id="overlayToggle" checked> Dark overlay on top of mesh</label>
+      <div class="row">
+        <input type="color" id="color1" value="#ff5a00">
+        <input type="color" id="color2" value="#ff1f00">
+        <input type="color" id="color3" value="#120000">
+        <input type="color" id="color4" value="#000000">
+      </div>
+      <div class="range-line">
+        <span class="small">Mesh speed</span>
+        <input type="range" id="meshSpeedRange" min="1" max="30" value="10">
+        <span class="small" id="meshSpeedValue">10</span>
+      </div>
+    </div>
+
+    <div class="section">
+      <h3>Instagram Safe Zone</h3>
+      <label><input type="checkbox" id="safeZoneToggle"> Show IG safe zone guide</label>
+      <label><input type="checkbox" id="extraDayPaddingToggle" checked> Extra padding for day / tonight</label>
+      <div class="small">Extra day padding helps keep handles, reply bars, and top UI clear.</div>
+    </div>
+
+    <div class="section">
+      <h3>Display Controls</h3>
       <label><input type="checkbox" id="showTimeToggle" checked> Show times</label>
       <label><input type="checkbox" id="showGenreToggle" checked> Show genres in day view</label>
-      <label><input type="checkbox" id="showGuestsToggle" checked> Include guests in day view / lineup</label>
+      <label><input type="checkbox" id="showGuestsToggle" checked> Include guests in day / lineup</label>
 
       <div class="field">
         <span>Month label override</span>
@@ -526,43 +203,16 @@
     </div>
 
     <div class="section">
-      <h3>EDIT SELECTED ITEM</h3>
+      <h3>Edit Selected Item</h3>
       <div class="selected" id="selectedInfo">Click a row or card in the preview to edit it.</div>
 
-      <div class="field">
-        <span>Show title</span>
-        <input id="editTitle">
-      </div>
-
-      <div class="field">
-        <span>DJ</span>
-        <input id="editDJ">
-      </div>
-
-      <div class="field">
-        <span>Guest DJ</span>
-        <input id="editGuestDJ">
-      </div>
-
-      <div class="field">
-        <span>Guest MC</span>
-        <input id="editGuestMC">
-      </div>
-
-      <div class="field">
-        <span>Genre</span>
-        <textarea id="editGenre"></textarea>
-      </div>
-
-      <div class="field">
-        <span>Date</span>
-        <input id="editDate" type="date">
-      </div>
-
-      <div class="field">
-        <span>Time range</span>
-        <input id="editTime" placeholder="19:00-20:00">
-      </div>
+      <div class="field"><span>Show title</span><input id="editTitle"></div>
+      <div class="field"><span>DJ</span><input id="editDJ"></div>
+      <div class="field"><span>Guest DJ</span><input id="editGuestDJ"></div>
+      <div class="field"><span>Guest MC</span><input id="editGuestMC"></div>
+      <div class="field"><span>Genre</span><textarea id="editGenre"></textarea></div>
+      <div class="field"><span>Date</span><input id="editDate" type="date"></div>
+      <div class="field"><span>Time range</span><input id="editTime" placeholder="19:00-20:00"></div>
 
       <label><input type="checkbox" id="editUseWith" checked> Use “w/” before DJ</label>
       <label><input type="checkbox" id="editFeatured"> Featured show</label>
@@ -575,8 +225,8 @@
     </div>
 
     <div class="section">
-      <h3>LOCAL OVERRIDES</h3>
-      <div class="small">Overrides live in this browser only. Great for last-minute changes without touching the source sheet.</div>
+      <h3>Local Overrides</h3>
+      <div class="small">Overrides stay in this browser only, layered on top of the live sheet.</div>
       <div class="row" style="margin-top:10px;">
         <button class="danger" id="resetOverridesBtn">RESET ALL OVERRIDES</button>
       </div>
@@ -593,8 +243,8 @@
 
 <script>
 const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTavGvSojxM1vYpMv0FSoC-WzIK3IqTYPNl1SYbya4iV8VJUaEmHso7yghmGQPLJvwpsEMzKjbonPDz/pub?output=csv";
-const STORAGE_KEY = "mesh_schedule_overrides_v2";
-const UI_KEY = "mesh_schedule_ui_v2";
+const STORAGE_KEY = "mesh_schedule_overrides_v4";
+const UI_KEY = "mesh_schedule_ui_v4";
 
 let ALL_ROWS = [];
 let OVERRIDES = loadOverrides();
@@ -603,273 +253,114 @@ let MODE = "month";
 let LOOPING = false;
 let loopTimer = null;
 let SELECTED_ID = null;
-
 let currentMonthDate = new Date(2026, 3, 1);
 let currentWeekDate = new Date();
 let currentDayDate = new Date();
 
-function loadOverrides(){
-  try{
-    return JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
-  }catch{
-    return {};
-  }
-}
-
-function saveOverrides(){
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(OVERRIDES));
-}
-
+function loadOverrides(){ try{ return JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}"); } catch{ return {}; } }
+function saveOverrides(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(OVERRIDES)); }
 function loadUIState(){
   try{
     return {
-      transparent:false,
-      animate:true,
-      showTime:true,
-      showGenre:true,
-      showGuests:true,
-      monthLabelOverride:"",
-      dayScale:100,
+      transparent:false, animate:true, showTime:true, showGenre:true, showGuests:true,
+      monthLabelOverride:"", dayScale:100, mesh:false, blur:false, overlay:true, meshSpeed:10,
+      color1:"#ff5a00", color2:"#ff1f00", color3:"#120000", color4:"#000000",
+      showSafeZone:false, extraDayPadding:true,
       ...JSON.parse(localStorage.getItem(UI_KEY) || "{}")
     };
   }catch{
-    return {
-      transparent:false,
-      animate:true,
-      showTime:true,
-      showGenre:true,
-      showGuests:true,
-      monthLabelOverride:"",
-      dayScale:100
-    };
+    return { transparent:false, animate:true, showTime:true, showGenre:true, showGuests:true, monthLabelOverride:"", dayScale:100, mesh:false, blur:false, overlay:true, meshSpeed:10, color1:"#ff5a00", color2:"#ff1f00", color3:"#120000", color4:"#000000", showSafeZone:false, extraDayPadding:true };
   }
 }
-
-function saveUIState(){
-  localStorage.setItem(UI_KEY, JSON.stringify(UI));
-}
-
-function parseLocalDate(s){
-  if(!s) return null;
-  const d = new Date(s + "T00:00:00");
-  return isNaN(d) ? null : d;
-}
-
-function getRowId(row){
-  if (row.__baseId) return row.__baseId;
-  return [row.Date || "", row["A-B"] || "", row["Now Playing"] || "", row.DJ || ""].join("||");
-}
-
-function clone(obj){
-  return JSON.parse(JSON.stringify(obj));
-}
-
-function escapeHtml(str){
-  return String(str ?? "")
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
-}
-
-function getDay(dateStr){
-  const d = parseLocalDate(dateStr);
-  return d ? String(d.getDate()).padStart(2, "0") : "";
-}
-
-function formatMonthYear(date){
-  return date.toLocaleDateString("en-GB", { month:"long", year:"numeric" }).toUpperCase();
-}
-
-function formatWeekLabel(start, end){
-  const a = start.toLocaleDateString("en-GB", { day:"2-digit", month:"short" }).toUpperCase();
-  const b = end.toLocaleDateString("en-GB", { day:"2-digit", month:"short", year:"numeric" }).toUpperCase();
-  return `${a} — ${b}`;
-}
-
-function formatDayLabel(date){
-  return date.toLocaleDateString("en-GB", {
-    weekday:"long",
-    day:"numeric",
-    month:"long",
-    year:"numeric"
-  }).toUpperCase();
-}
-
+function saveUIState(){ localStorage.setItem(UI_KEY, JSON.stringify(UI)); }
+function parseLocalDate(s){ if(!s) return null; const d = new Date(s + "T00:00:00"); return isNaN(d) ? null : d; }
+function getRowId(row){ if (row.__baseId) return row.__baseId; return [row.Date || "", row["A-B"] || "", row["Now Playing"] || "", row.DJ || ""].join("||"); }
+function clone(obj){ return JSON.parse(JSON.stringify(obj)); }
+function escapeHtml(str){ return String(str ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\"/g, "&quot;").replace(/'/g, "&#039;"); }
+function getDay(dateStr){ const d = parseLocalDate(dateStr); return d ? String(d.getDate()).padStart(2, "0") : ""; }
+function formatMonthYear(date){ return date.toLocaleDateString("en-GB", { month:"long", year:"numeric" }).toUpperCase(); }
+function formatWeekLabel(start, end){ const a = start.toLocaleDateString("en-GB", { day:"2-digit", month:"short" }).toUpperCase(); const b = end.toLocaleDateString("en-GB", { day:"2-digit", month:"short", year:"numeric" }).toUpperCase(); return `${a} — ${b}`; }
+function formatDayLabel(date){ return date.toLocaleDateString("en-GB", { weekday:"long", day:"numeric", month:"long", year:"numeric" }).toUpperCase(); }
 function to12hr(range){
   if(!range || !range.includes("-")) return "";
   const [a,b] = range.split("-").map(s => s.trim());
-
-  const f = t=>{
-    let [h,m] = t.split(":").map(Number);
-    if (Number.isNaN(h)) return t;
-    const suffix = h >= 12 ? "PM" : "AM";
-    h = h % 12 || 12;
-    return m === 0 ? `${h}${suffix}` : `${h}:${String(m).padStart(2,"0")}${suffix}`;
-  };
-
+  const f = t => { let [h,m] = t.split(":").map(Number); if (Number.isNaN(h)) return t; const suffix = h >= 12 ? "PM" : "AM"; h = h % 12 || 12; return m === 0 ? `${h}${suffix}` : `${h}:${String(m).padStart(2,"0")}${suffix}`; };
   return `${f(a)}–${f(b)}`;
 }
-
-function startDateTime(row){
-  const start = row["A-B"]?.split("-")[0]?.trim() || "00:00";
-  return new Date(`${row.Date}T${start}`);
-}
-
-function sortRows(rows){
-  return rows.slice().sort((a,b) => startDateTime(a) - startDateTime(b));
-}
-
-function applyOverrides(baseRow){
-  const id = getRowId(baseRow);
-  const row = clone(baseRow);
-  row.__baseId = id;
-  if (OVERRIDES[id]){
-    Object.assign(row, OVERRIDES[id]);
-  }
-  return row;
-}
-
-function buildDjLine(row){
-  const bits = [];
-  if (row.DJ) bits.push(row.DJ);
-  if (UI.showGuests){
-    if (row["Guest DJ"]) bits.push(row["Guest DJ"]);
-    if (row["Guest MC"]) bits.push(row["Guest MC"]);
-  }
-  return bits.join(" + ");
-}
-
-function buildDayTitle(row){
-  const djLine = buildDjLine(row);
-  if (!djLine) return row["Now Playing"] || "";
-  return row.useWith === false
-    ? `${row["Now Playing"]} ${djLine}`
-    : `${row["Now Playing"]} w/ ${djLine}`;
-}
-
-function getBaseRows(){
-  return ALL_ROWS.map(applyOverrides).filter(r => !r.hidden);
-}
+function startDateTime(row){ const start = row["A-B"]?.split("-")[0]?.trim() || "00:00"; return new Date(`${row.Date}T${start}`); }
+function sortRows(rows){ return rows.slice().sort((a,b) => startDateTime(a) - startDateTime(b)); }
+function applyOverrides(baseRow){ const id = getRowId(baseRow); const row = clone(baseRow); row.__baseId = id; if (OVERRIDES[id]) Object.assign(row, OVERRIDES[id]); return row; }
+function buildDjLine(row){ const bits = []; if (row.DJ) bits.push(row.DJ); if (UI.showGuests){ if (row["Guest DJ"]) bits.push(row["Guest DJ"]); if (row["Guest MC"]) bits.push(row["Guest MC"]); } return bits.join(" + "); }
+function buildDayTitle(row){ const djLine = buildDjLine(row); if (!djLine) return row["Now Playing"] || ""; return row.useWith === false ? `${row["Now Playing"]} ${djLine}` : `${row["Now Playing"]} w/ ${djLine}`; }
+function getBaseRows(){ return ALL_ROWS.map(applyOverrides).filter(r => !r.hidden); }
 
 function getRowsForMode(mode, refDate = null){
   const rows = getBaseRows();
-
   if (mode === "month"){
-    const date = refDate || currentMonthDate;
-    const month = date.getMonth();
-    const year = date.getFullYear();
-    return rows.filter(r => {
-      const d = parseLocalDate(r.Date);
-      return d && d.getMonth() === month && d.getFullYear() === year;
-    });
+    const date = refDate || currentMonthDate; const month = date.getMonth(); const year = date.getFullYear();
+    return rows.filter(r => { const d = parseLocalDate(r.Date); return d && d.getMonth() === month && d.getFullYear() === year; });
   }
-
   if (mode === "week"){
-    const date = refDate || currentWeekDate;
-    const start = new Date(date);
-    const day = start.getDay();
-    const diff = (day + 6) % 7;
-    start.setDate(start.getDate() - diff);
-    start.setHours(0,0,0,0);
-    const end = new Date(start);
-    end.setDate(end.getDate() + 6);
-    end.setHours(23,59,59,999);
-
-    return rows.filter(r => {
-      const d = parseLocalDate(r.Date);
-      return d && d >= start && d <= end;
-    });
+    const date = refDate || currentWeekDate; const start = new Date(date); const day = start.getDay(); const diff = (day + 6) % 7; start.setDate(start.getDate() - diff); start.setHours(0,0,0,0); const end = new Date(start); end.setDate(end.getDate() + 6); end.setHours(23,59,59,999);
+    return rows.filter(r => { const d = parseLocalDate(r.Date); return d && d >= start && d <= end; });
   }
-
   if (mode === "day"){
-    const date = refDate || currentDayDate;
-    return rows.filter(r => {
-      const d = parseLocalDate(r.Date);
-      return d && d.toDateString() === date.toDateString();
-    });
+    const date = refDate || currentDayDate; return rows.filter(r => { const d = parseLocalDate(r.Date); return d && d.toDateString() === date.toDateString(); });
   }
-
   if (mode === "tonight"){
-    const now = new Date();
-    const upcoming = sortRows(rows).filter(r => startDateTime(r) >= now);
-    return upcoming.slice(0, 1);
+    const now = new Date(); return sortRows(rows).filter(r => startDateTime(r) >= now).slice(0, 1);
   }
-
   if (mode === "lineup"){
-    const date = refDate || currentMonthDate;
-    const month = date.getMonth();
-    const year = date.getFullYear();
-    return rows.filter(r => {
-      const d = parseLocalDate(r.Date);
-      return d && d.getMonth() === month && d.getFullYear() === year;
-    });
+    const date = refDate || currentMonthDate; const month = date.getMonth(); const year = date.getFullYear();
+    return rows.filter(r => { const d = parseLocalDate(r.Date); return d && d.getMonth() === month && d.getFullYear() === year; });
   }
-
   return rows;
 }
 
 function getLabelForMode(mode, refDate = null){
-  if (mode === "month"){
-    return UI.monthLabelOverride?.trim() || formatMonthYear(refDate || currentMonthDate);
-  }
-
+  if (mode === "month") return UI.monthLabelOverride?.trim() || formatMonthYear(refDate || currentMonthDate);
   if (mode === "week"){
-    const date = refDate || currentWeekDate;
-    const start = new Date(date);
-    const day = start.getDay();
-    const diff = (day + 6) % 7;
-    start.setDate(start.getDate() - diff);
-    start.setHours(0,0,0,0);
-    const end = new Date(start);
-    end.setDate(end.getDate() + 6);
+    const date = refDate || currentWeekDate; const start = new Date(date); const day = start.getDay(); const diff = (day + 6) % 7; start.setDate(start.getDate() - diff); start.setHours(0,0,0,0); const end = new Date(start); end.setDate(end.getDate() + 6);
     return formatWeekLabel(start, end);
   }
-
-  if (mode === "day"){
-    return formatDayLabel(refDate || currentDayDate);
-  }
-
-  if (mode === "tonight"){
-    return "TONIGHT";
-  }
-
-  if (mode === "lineup"){
-    return `${formatMonthYear(refDate || currentMonthDate)} LINEUP`;
-  }
-
+  if (mode === "day") return formatDayLabel(refDate || currentDayDate);
+  if (mode === "tonight") return "TONIGHT";
+  if (mode === "lineup") return `${formatMonthYear(refDate || currentMonthDate)} LINEUP`;
   return "";
 }
 
 function maybeAnimate(el, i, step){
-  if (!UI.animate){
-    el.style.animation = "none";
-    el.style.opacity = "1";
-    el.style.transform = "none";
-  } else {
-    el.style.animationDelay = `${i * step}s`;
+  if (!UI.animate){ el.style.animation = "none"; el.style.opacity = "1"; el.style.transform = "none"; }
+  else { el.style.animationDelay = `${i * step}s`; }
+}
+function selectRow(row){ SELECTED_ID = row.__baseId || getRowId(row); populateEditor(row); }
+
+function createMeshCanvas(){
+  const canvas = document.createElement("canvas");
+  canvas.className = "mesh-bg";
+  canvas.width = 1080; canvas.height = 1920;
+  const ctx = canvas.getContext("2d");
+  let t = 0;
+  function draw(){
+    const w = canvas.width, h = canvas.height;
+    ctx.clearRect(0,0,w,h);
+    const bg = ctx.createLinearGradient(0,0,w,h); bg.addColorStop(0, UI.color4); bg.addColorStop(1, "#000000"); ctx.fillStyle = bg; ctx.fillRect(0,0,w,h);
+    const x1 = w * (0.25 + Math.sin(t * 0.9) * 0.12), y1 = h * (0.22 + Math.cos(t * 1.1) * 0.08);
+    const x2 = w * (0.76 + Math.cos(t * 1.2) * 0.10), y2 = h * (0.36 + Math.sin(t * 1.0) * 0.10);
+    const x3 = w * (0.48 + Math.sin(t * 0.7) * 0.14), y3 = h * (0.82 + Math.cos(t * 1.3) * 0.08);
+    const g1 = ctx.createRadialGradient(x1,y1,20,x1,y1,420); g1.addColorStop(0, UI.color1); g1.addColorStop(1, "transparent");
+    const g2 = ctx.createRadialGradient(x2,y2,20,x2,y2,460); g2.addColorStop(0, UI.color2); g2.addColorStop(1, "transparent");
+    const g3 = ctx.createRadialGradient(x3,y3,30,x3,y3,520); g3.addColorStop(0, UI.color3); g3.addColorStop(1, "transparent");
+    ctx.save(); ctx.filter = UI.blur ? "blur(95px)" : "blur(50px)"; ctx.fillStyle = g1; ctx.fillRect(0,0,w,h); ctx.fillStyle = g2; ctx.fillRect(0,0,w,h); ctx.fillStyle = g3; ctx.fillRect(0,0,w,h); ctx.restore();
+    t += UI.meshSpeed / 1200;
   }
+  canvas.__drawFrame = draw; draw(); return canvas;
 }
 
-function selectRow(row){
-  SELECTED_ID = row.__baseId || getRowId(row);
-  populateEditor(row);
-}
-
-function createShowRow(row, i, mode){
-  const d = document.createElement("div");
-  d.className = "show";
-  maybeAnimate(d, i, 0.03);
-
-  d.innerHTML = `
-    <div class="day">${escapeHtml(getDay(row.Date))}</div>
-    <div class="title">${escapeHtml(row["Now Playing"] || "")}</div>
-    <div class="time">${UI.showTime ? escapeHtml(to12hr(row["A-B"])) : ""}</div>
-  `;
-
-  d.addEventListener("click", () => selectRow(row));
-  return d;
+function createShowRow(row, i){
+  const d = document.createElement("div"); d.className = "show"; maybeAnimate(d, i, 0.03);
+  d.innerHTML = `<div class="day">${escapeHtml(getDay(row.Date))}</div><div class="title">${escapeHtml(row["Now Playing"] || "")}</div><div class="time">${UI.showTime ? escapeHtml(to12hr(row["A-B"])) : ""}</div>`;
+  d.addEventListener("click", () => selectRow(row)); return d;
 }
 
 function buildStoryNode({ mode = MODE, refDate = null, forExport = false } = {}){
@@ -877,158 +368,107 @@ function buildStoryNode({ mode = MODE, refDate = null, forExport = false } = {})
   story.className = "story-canvas";
   if (UI.transparent) story.classList.add("transparent");
   if (!UI.animate || forExport) story.classList.add("no-anim");
+  story.style.background = UI.transparent ? "transparent" : "#000";
 
-  const label = document.createElement("div");
-  label.className = "story-label";
-  label.textContent = getLabelForMode(mode, refDate);
+  let meshCanvas = null;
+  if (UI.mesh){ meshCanvas = createMeshCanvas(); story.appendChild(meshCanvas); }
+  if (UI.overlay && !UI.transparent){ const overlay = document.createElement("div"); overlay.className = "story-overlay"; story.appendChild(overlay); }
 
-  const content = document.createElement("div");
-  content.className = "story-content";
+  const inner = document.createElement("div"); inner.className = "story-inner";
+  if (mode === "month" || mode === "week" || mode === "lineup") inner.classList.add("tight-safe");
+  if ((mode === "day" || mode === "tonight") && UI.extraDayPadding) inner.classList.add("relaxed-safe");
 
+  const label = document.createElement("div"); label.className = "story-label"; label.textContent = getLabelForMode(mode, refDate);
+  const content = document.createElement("div"); content.className = "story-content";
   const rows = sortRows(getRowsForMode(mode, refDate));
 
   if (mode === "month"){
-    const grid = document.createElement("div");
-    grid.className = "columns month";
-
-    const col1 = document.createElement("div");
-    col1.className = "col";
-    const col2 = document.createElement("div");
-    col2.className = "col";
-
+    const grid = document.createElement("div"); grid.className = "columns month";
+    const col1 = document.createElement("div"); col1.className = "col";
+    const col2 = document.createElement("div"); col2.className = "col";
     const mid = Math.ceil(rows.length / 2);
-    rows.slice(0, mid).forEach((row, i) => col1.appendChild(createShowRow(row, i, mode)));
-    rows.slice(mid).forEach((row, i) => col2.appendChild(createShowRow(row, i + mid, mode)));
-
-    grid.appendChild(col1);
-    grid.appendChild(col2);
-    content.appendChild(grid);
+    rows.slice(0, mid).forEach((row, i) => col1.appendChild(createShowRow(row, i)));
+    rows.slice(mid).forEach((row, i) => col2.appendChild(createShowRow(row, i + mid)));
+    grid.appendChild(col1); grid.appendChild(col2); content.appendChild(grid);
   }
 
   if (mode === "week"){
-    const grid = document.createElement("div");
-    grid.className = "columns week";
-    const needsTwoCols = rows.length > 10;
-    if (needsTwoCols) grid.classList.add("two-col");
-
-    const col1 = document.createElement("div");
-    col1.className = "col";
-    const col2 = document.createElement("div");
-    col2.className = "col";
-
+    const grid = document.createElement("div"); grid.className = "columns week";
+    const needsTwoCols = rows.length > 10; if (needsTwoCols) grid.classList.add("two-col");
+    const col1 = document.createElement("div"); col1.className = "col";
+    const col2 = document.createElement("div"); col2.className = "col";
     if (needsTwoCols){
       const mid = Math.ceil(rows.length / 2);
-      rows.slice(0, mid).forEach((row, i) => col1.appendChild(createShowRow(row, i, mode)));
-      rows.slice(mid).forEach((row, i) => col2.appendChild(createShowRow(row, i + mid, mode)));
-      grid.appendChild(col1);
-      grid.appendChild(col2);
+      rows.slice(0, mid).forEach((row, i) => col1.appendChild(createShowRow(row, i)));
+      rows.slice(mid).forEach((row, i) => col2.appendChild(createShowRow(row, i + mid)));
+      grid.appendChild(col1); grid.appendChild(col2);
     } else {
-      rows.forEach((row, i) => col1.appendChild(createShowRow(row, i, mode)));
+      rows.forEach((row, i) => col1.appendChild(createShowRow(row, i)));
       grid.appendChild(col1);
     }
-
     content.appendChild(grid);
   }
 
   if (mode === "day" || mode === "tonight"){
-    const wrap = document.createElement("div");
-    wrap.className = "day-stack";
-    wrap.style.transform = `scale(${UI.dayScale / 100})`;
-    wrap.style.transformOrigin = "top left";
-    wrap.style.width = `${100 / (UI.dayScale / 100)}%`;
-
+    const wrap = document.createElement("div"); wrap.className = "day-stack"; wrap.style.transform = `scale(${UI.dayScale / 100})`; wrap.style.transformOrigin = "top left"; wrap.style.width = `${100 / (UI.dayScale / 100)}%`;
     if (!rows.length){
-      const empty = document.createElement("div");
-      empty.className = "day-card";
-      empty.style.animation = "none";
-      empty.style.opacity = "1";
-      empty.style.transform = "none";
-      empty.innerHTML = `
-        <div class="day-kicker">NO SHOWS</div>
-        <div class="day-title">Nothing scheduled.</div>
-      `;
-      wrap.appendChild(empty);
+      const empty = document.createElement("div"); empty.className = "day-card"; empty.style.animation = "none"; empty.style.opacity = "1"; empty.style.transform = "none";
+      empty.innerHTML = `<div class="day-kicker">NO SHOWS</div><div class="day-title">Nothing scheduled.</div>`; wrap.appendChild(empty);
     } else {
       rows.forEach((row, i) => {
-        const card = document.createElement("div");
-        card.className = "day-card";
-        if (row.featured) card.classList.add("featured");
-        maybeAnimate(card, i, 0.12);
-
-        const genres = UI.showGenre ? (row.Genre || "") : "";
-        const time = UI.showTime ? to12hr(row["A-B"]) : "";
-
-        card.innerHTML = `
-          <div class="day-kicker">${escapeHtml(getDay(row.Date))}</div>
-          <div class="day-title">${escapeHtml(buildDayTitle(row))}</div>
-          ${genres ? `<div class="day-genre">${escapeHtml(genres)}</div>` : ``}
-          ${time ? `<div class="day-time">${escapeHtml(time)}</div>` : ``}
-        `;
-
-        card.addEventListener("click", () => selectRow(row));
-        wrap.appendChild(card);
+        const card = document.createElement("div"); card.className = mode === "tonight" ? "tonight-card" : "day-card"; if (row.featured) card.classList.add("featured"); maybeAnimate(card, i, 0.12);
+        const genres = UI.showGenre ? (row.Genre || "") : ""; const time = UI.showTime ? to12hr(row["A-B"]) : "";
+        card.innerHTML = `<div class="day-kicker">${escapeHtml(getDay(row.Date))}</div><div class="day-title">${escapeHtml(buildDayTitle(row))}</div>${genres ? `<div class="day-genre">${escapeHtml(genres)}</div>` : ``}${time ? `<div class="day-time">${escapeHtml(time)}</div>` : ``}`;
+        card.addEventListener("click", () => selectRow(row)); wrap.appendChild(card);
       });
     }
-
     content.appendChild(wrap);
   }
 
   if (mode === "lineup"){
-    const wrap = document.createElement("div");
-    wrap.className = "lineup-stack";
-
+    const wrap = document.createElement("div"); wrap.className = "lineup-stack";
     rows.forEach((row, i) => {
-      const item = document.createElement("div");
-      item.className = "lineup-item";
-      maybeAnimate(item, i, 0.03);
-
-      const sub = UI.showGuests && buildDjLine(row)
-        ? `<div class="lineup-sub">${escapeHtml(buildDjLine(row))}</div>`
-        : "";
-
-      item.innerHTML = `
-        <div>${escapeHtml(row["Now Playing"] || "")}</div>
-        ${sub}
-      `;
-
-      item.addEventListener("click", () => selectRow(row));
-      wrap.appendChild(item);
+      const item = document.createElement("div"); item.className = "lineup-item"; maybeAnimate(item, i, 0.03);
+      const sub = UI.showGuests && buildDjLine(row) ? `<div class="lineup-sub">${escapeHtml(buildDjLine(row))}</div>` : "";
+      item.innerHTML = `<div>${escapeHtml(row["Now Playing"] || "")}</div>${sub}`; item.addEventListener("click", () => selectRow(row)); wrap.appendChild(item);
     });
-
     content.appendChild(wrap);
   }
 
-  story.appendChild(label);
-  story.appendChild(content);
+  inner.appendChild(label); inner.appendChild(content); story.appendChild(inner);
+
+  if (UI.showSafeZone){
+    const guide = document.createElement("div"); guide.className = "safe-zone-guide";
+    if (mode === "month" || mode === "week" || mode === "lineup"){ guide.style.top = "110px"; guide.style.bottom = "150px"; }
+    if ((mode === "day" || mode === "tonight") && UI.extraDayPadding){ guide.style.top = "160px"; guide.style.bottom = "220px"; }
+    story.appendChild(guide);
+  }
+
+  if (meshCanvas) story.__meshCanvas = meshCanvas;
   return story;
 }
 
 function updatePreview(){
   const viewport = document.getElementById("previewViewport");
+  const frame = document.getElementById("previewFrame");
   viewport.innerHTML = "";
   viewport.appendChild(buildStoryNode());
-
   requestAnimationFrame(() => {
-    const frame = document.getElementById("previewFrame");
-    const scale = frame.clientWidth / 1080;
+    const frameWidth = frame.clientWidth;
+    const frameHeight = frame.clientHeight;
+    const scaleX = frameWidth / 1080;
+    const scaleY = frameHeight / 1920;
+    const scale = Math.min(scaleX, scaleY);
     viewport.style.transform = `scale(${scale})`;
-    frame.style.height = `${1920 * scale}px`;
+    viewport.style.width = "1080px";
+    viewport.style.height = "1920px";
   });
 }
 
-function render(){
-  document.querySelectorAll("#modeSeg button").forEach(btn => {
-    btn.classList.toggle("active", btn.dataset.mode === MODE);
-  });
-  updatePreview();
-}
+function render(){ document.querySelectorAll("#modeSeg button").forEach(btn => btn.classList.toggle("active", btn.dataset.mode === MODE)); updatePreview(); }
 
 function populateEditor(row){
-  document.getElementById("selectedInfo").innerHTML = `
-    <strong>${escapeHtml(row["Now Playing"] || "Untitled")}</strong><br>
-    ${escapeHtml(row.Date || "")} · ${escapeHtml(row["A-B"] || "")}
-  `;
-
+  document.getElementById("selectedInfo").innerHTML = `<strong>${escapeHtml(row["Now Playing"] || "Untitled")}</strong><br>${escapeHtml(row.Date || "")} · ${escapeHtml(row["A-B"] || "")}`;
   document.getElementById("editTitle").value = row["Now Playing"] || "";
   document.getElementById("editDJ").value = row.DJ || "";
   document.getElementById("editGuestDJ").value = row["Guest DJ"] || "";
@@ -1042,11 +482,7 @@ function populateEditor(row){
 }
 
 function saveCurrentEdit(){
-  if (!SELECTED_ID){
-    alert("Click a row or card in the preview first.");
-    return;
-  }
-
+  if (!SELECTED_ID){ alert("Click a row or card in the preview first."); return; }
   OVERRIDES[SELECTED_ID] = {
     "Now Playing": document.getElementById("editTitle").value.trim(),
     DJ: document.getElementById("editDJ").value.trim(),
@@ -1059,37 +495,22 @@ function saveCurrentEdit(){
     featured: document.getElementById("editFeatured").checked,
     hidden: document.getElementById("editHidden").checked
   };
-
-  saveOverrides();
-  render();
+  saveOverrides(); render();
 }
 
 function clearCurrentEdit(){
-  if (!SELECTED_ID){
-    alert("No selected item.");
-    return;
-  }
-
-  delete OVERRIDES[SELECTED_ID];
-  saveOverrides();
-
+  if (!SELECTED_ID){ alert("No selected item."); return; }
+  delete OVERRIDES[SELECTED_ID]; saveOverrides();
   const base = ALL_ROWS.find(r => getRowId(r) === SELECTED_ID);
-  if (base){
-    populateEditor(applyOverrides(base));
-  } else {
-    document.getElementById("selectedInfo").textContent = "Click a row or card in the preview to edit it.";
-  }
-
+  if (base) populateEditor(applyOverrides(base));
+  else document.getElementById("selectedInfo").textContent = "Click a row or card in the preview to edit it.";
   render();
 }
 
 function resetAllOverrides(){
   if (!confirm("Reset all local overrides?")) return;
-  OVERRIDES = {};
-  saveOverrides();
-  SELECTED_ID = null;
-  document.getElementById("selectedInfo").textContent = "Click a row or card in the preview to edit it.";
-  render();
+  OVERRIDES = {}; saveOverrides(); SELECTED_ID = null;
+  document.getElementById("selectedInfo").textContent = "Click a row or card in the preview to edit it."; render();
 }
 
 function syncControlsToUI(){
@@ -1101,296 +522,166 @@ function syncControlsToUI(){
   document.getElementById("monthLabelInput").value = UI.monthLabelOverride || "";
   document.getElementById("dayScaleRange").value = UI.dayScale;
   document.getElementById("dayScaleValue").textContent = `${UI.dayScale}%`;
+  document.getElementById("meshToggle").checked = UI.mesh;
+  document.getElementById("blurToggle").checked = UI.blur;
+  document.getElementById("overlayToggle").checked = UI.overlay;
+  document.getElementById("color1").value = UI.color1;
+  document.getElementById("color2").value = UI.color2;
+  document.getElementById("color3").value = UI.color3;
+  document.getElementById("color4").value = UI.color4;
+  document.getElementById("meshSpeedRange").value = UI.meshSpeed;
+  document.getElementById("meshSpeedValue").textContent = String(UI.meshSpeed);
+  document.getElementById("safeZoneToggle").checked = UI.showSafeZone;
+  document.getElementById("extraDayPaddingToggle").checked = UI.extraDayPadding;
 }
 
-function setMode(mode){
-  MODE = mode;
-  render();
-}
-
+function setMode(mode){ MODE = mode; render(); }
 function shiftPeriod(dir){
-  if (MODE === "month" || MODE === "lineup"){
-    currentMonthDate = new Date(currentMonthDate.getFullYear(), currentMonthDate.getMonth() + dir, 1);
-  } else if (MODE === "week"){
-    currentWeekDate = new Date(currentWeekDate);
-    currentWeekDate.setDate(currentWeekDate.getDate() + (7 * dir));
-  } else if (MODE === "day"){
-    currentDayDate = new Date(currentDayDate);
-    currentDayDate.setDate(currentDayDate.getDate() + dir);
-  }
+  if (MODE === "month" || MODE === "lineup") currentMonthDate = new Date(currentMonthDate.getFullYear(), currentMonthDate.getMonth() + dir, 1);
+  else if (MODE === "week") { currentWeekDate = new Date(currentWeekDate); currentWeekDate.setDate(currentWeekDate.getDate() + (7 * dir)); }
+  else if (MODE === "day") { currentDayDate = new Date(currentDayDate); currentDayDate.setDate(currentDayDate.getDate() + dir); }
   render();
 }
-
-function resetToday(){
-  const now = new Date();
-  currentMonthDate = new Date(now.getFullYear(), now.getMonth(), 1);
-  currentWeekDate = new Date(now);
-  currentDayDate = new Date(now);
-  render();
-}
+function resetToday(){ const now = new Date(); currentMonthDate = new Date(now.getFullYear(), now.getMonth(), 1); currentWeekDate = new Date(now); currentDayDate = new Date(now); render(); }
 
 function toggleLoop(){
   const btn = document.getElementById("loopBtn");
-
-  if (LOOPING){
-    LOOPING = false;
-    clearInterval(loopTimer);
-    loopTimer = null;
-    btn.textContent = "START LOOP";
-    return;
-  }
-
-  LOOPING = true;
-  btn.textContent = "STOP LOOP";
-
-  const sequence = [
-    () => setMode("month"),
-    () => setMode("week"),
-    () => setMode("day"),
-    () => shiftPeriod(1),
-    () => setMode("tonight"),
-    () => setMode("lineup")
-  ];
-
-  let step = 0;
-  sequence[step]();
-
-  loopTimer = setInterval(() => {
-    step = (step + 1) % sequence.length;
-    sequence[step]();
-  }, 4500);
+  if (LOOPING){ LOOPING = false; clearInterval(loopTimer); loopTimer = null; btn.textContent = "START LOOP"; return; }
+  LOOPING = true; btn.textContent = "STOP LOOP";
+  const sequence = [() => setMode("month"), () => setMode("week"), () => setMode("day"), () => shiftPeriod(1), () => setMode("tonight"), () => setMode("lineup")];
+  let step = 0; sequence[step]();
+  loopTimer = setInterval(() => { step = (step + 1) % sequence.length; sequence[step](); }, 4500);
 }
 
-async function captureStoryNode(storyNode){
-  const stage = document.getElementById("exportStage");
-  stage.innerHTML = "";
+async function captureStoryNode(storyNode, forceTransparent = false){
+  const stage = document.getElementById("exportStage"); stage.innerHTML = "";
+  if (forceTransparent) storyNode.style.background = "transparent";
   stage.appendChild(storyNode);
-
-  if (document.fonts && document.fonts.ready){
-    try { await document.fonts.ready; } catch {}
-  }
-
+  if (storyNode.__meshCanvas && storyNode.__meshCanvas.__drawFrame) storyNode.__meshCanvas.__drawFrame();
+  if (document.fonts && document.fonts.ready){ try { await document.fonts.ready; } catch {} }
   await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
-
-  return await html2canvas(storyNode, {
-    backgroundColor: UI.transparent ? null : "#000",
-    scale: 1,
-    width: 1080,
-    height: 1920,
-    useCORS: true
-  });
+  return await html2canvas(storyNode, { backgroundColor: forceTransparent || UI.transparent ? null : "#000", scale: 1, width: 1080, height: 1920, useCORS: true });
 }
 
-async function exportCurrentPNG(){
-  const storyNode = buildStoryNode({ mode: MODE, forExport: true });
-  const canvas = await captureStoryNode(storyNode);
+function slugify(s){ return String(s || "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 80); }
 
+async function exportCurrentPNG(forceTransparent = false){
+  const storyNode = buildStoryNode({ mode: MODE, forExport: true });
+  const canvas = await captureStoryNode(storyNode, forceTransparent);
   const link = document.createElement("a");
-  link.download = `mesh-${MODE}-${slugify(getLabelForMode(MODE))}.png`;
+  const suffix = forceTransparent ? "alpha" : "png";
+  link.download = `mesh-${MODE}-${slugify(getLabelForMode(MODE))}-${suffix}.png`;
   link.href = canvas.toDataURL("image/png");
   link.click();
 }
 
-function slugify(s){
-  return String(s || "")
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "")
-    .slice(0, 80);
-}
-
 function getWeekStartsForMonth(date){
-  const rows = sortRows(getRowsForMode("month", date));
-  const seen = new Set();
-  const starts = [];
-
-  rows.forEach(r => {
-    const d = parseLocalDate(r.Date);
-    const start = new Date(d);
-    const day = start.getDay();
-    const diff = (day + 6) % 7;
-    start.setDate(start.getDate() - diff);
-    start.setHours(0,0,0,0);
-    const key = start.toISOString().slice(0,10);
-    if (!seen.has(key)){
-      seen.add(key);
-      starts.push(start);
-    }
-  });
-
+  const rows = sortRows(getRowsForMode("month", date)); const seen = new Set(); const starts = [];
+  rows.forEach(r => { const d = parseLocalDate(r.Date); const start = new Date(d); const day = start.getDay(); const diff = (day + 6) % 7; start.setDate(start.getDate() - diff); start.setHours(0,0,0,0); const key = start.toISOString().slice(0,10); if (!seen.has(key)){ seen.add(key); starts.push(start); } });
   return starts.sort((a,b) => a - b);
 }
 
 function getDaysForMonth(date){
-  const rows = sortRows(getRowsForMode("month", date));
-  const seen = new Set();
-  const days = [];
-
-  rows.forEach(r => {
-    const key = r.Date;
-    if (!seen.has(key)){
-      seen.add(key);
-      days.push(parseLocalDate(key));
-    }
-  });
-
+  const rows = sortRows(getRowsForMode("month", date)); const seen = new Set(); const days = [];
+  rows.forEach(r => { if (!seen.has(r.Date)){ seen.add(r.Date); days.push(parseLocalDate(r.Date)); } });
   return days.sort((a,b) => a - b);
 }
 
 async function exportPackZIP(){
-  const zip = new JSZip();
-  const monthDate = new Date(currentMonthDate);
-
-  const monthStory = buildStoryNode({ mode:"month", refDate:monthDate, forExport:true });
-  let canvas = await captureStoryNode(monthStory);
+  const zip = new JSZip(); const monthDate = new Date(currentMonthDate);
+  let node = buildStoryNode({ mode:"month", refDate:monthDate, forExport:true });
+  let canvas = await captureStoryNode(node, false);
   zip.file(`01-month-${slugify(getLabelForMode("month", monthDate))}.png`, canvas.toDataURL("image/png").split(",")[1], {base64:true});
 
   const weekStarts = getWeekStartsForMonth(monthDate);
   for (let i = 0; i < weekStarts.length; i++){
-    const weekStory = buildStoryNode({ mode:"week", refDate:weekStarts[i], forExport:true });
-    canvas = await captureStoryNode(weekStory);
+    node = buildStoryNode({ mode:"week", refDate:weekStarts[i], forExport:true });
+    canvas = await captureStoryNode(node, false);
     zip.file(`02-week-${String(i+1).padStart(2,"0")}-${slugify(getLabelForMode("week", weekStarts[i]))}.png`, canvas.toDataURL("image/png").split(",")[1], {base64:true});
   }
 
   const days = getDaysForMonth(monthDate);
   for (let i = 0; i < days.length; i++){
-    const dayStory = buildStoryNode({ mode:"day", refDate:days[i], forExport:true });
-    canvas = await captureStoryNode(dayStory);
+    node = buildStoryNode({ mode:"day", refDate:days[i], forExport:true });
+    canvas = await captureStoryNode(node, false);
     zip.file(`03-day-${String(i+1).padStart(2,"0")}-${slugify(getLabelForMode("day", days[i]))}.png`, canvas.toDataURL("image/png").split(",")[1], {base64:true});
   }
 
-  const lineupStory = buildStoryNode({ mode:"lineup", refDate:monthDate, forExport:true });
-  canvas = await captureStoryNode(lineupStory);
+  node = buildStoryNode({ mode:"lineup", refDate:monthDate, forExport:true });
+  canvas = await captureStoryNode(node, false);
   zip.file(`04-lineup-${slugify(getLabelForMode("lineup", monthDate))}.png`, canvas.toDataURL("image/png").split(",")[1], {base64:true});
 
-  const tonightStory = buildStoryNode({ mode:"tonight", forExport:true });
-  canvas = await captureStoryNode(tonightStory);
+  node = buildStoryNode({ mode:"tonight", forExport:true });
+  canvas = await captureStoryNode(node, false);
   zip.file(`05-tonight.png`, canvas.toDataURL("image/png").split(",")[1], {base64:true});
 
   const blob = await zip.generateAsync({ type:"blob" });
-  const link = document.createElement("a");
-  link.href = URL.createObjectURL(blob);
-  link.download = `mesh-content-pack-${slugify(getLabelForMode("month", monthDate))}.zip`;
-  link.click();
-  setTimeout(() => URL.revokeObjectURL(link.href), 2000);
+  const link = document.createElement("a"); link.href = URL.createObjectURL(blob); link.download = `mesh-content-pack-${slugify(getLabelForMode("month", monthDate))}.zip`; link.click(); setTimeout(() => URL.revokeObjectURL(link.href), 2000);
 }
 
-document.getElementById("modeSeg").addEventListener("click", (e) => {
-  const btn = e.target.closest("button[data-mode]");
-  if (!btn) return;
-  setMode(btn.dataset.mode);
-});
+async function exportVideo(){
+  const canvas = document.createElement("canvas"); canvas.width = 1080; canvas.height = 1920; const ctx = canvas.getContext("2d");
+  const stream = canvas.captureStream(30); const mimeTypes = ["video/webm;codecs=vp9","video/webm;codecs=vp8","video/webm"]; const chosen = mimeTypes.find(t => MediaRecorder.isTypeSupported(t)) || "video/webm";
+  const recorder = new MediaRecorder(stream, { mimeType: chosen }); const chunks = [];
+  recorder.ondataavailable = e => { if (e.data.size) chunks.push(e.data); };
+  recorder.onstop = () => { const blob = new Blob(chunks, { type: chosen }); const url = URL.createObjectURL(blob); const a = document.createElement("a"); a.href = url; a.download = `mesh-${MODE}-loop.webm`; a.click(); setTimeout(() => URL.revokeObjectURL(url), 2000); };
+  recorder.start();
+  const seq = [{ mode:"month", hold:1200 },{ mode:"week", hold:1200 },{ mode:"day", hold:1200 },{ mode:"tonight", hold:1400 },{ mode:"lineup", hold:1200 }];
+  for (const step of seq){
+    const node = buildStoryNode({ mode: step.mode, forExport: true });
+    const shot = await captureStoryNode(node, false);
+    const start = performance.now();
+    while (performance.now() - start < step.hold){
+      ctx.clearRect(0,0,1080,1920);
+      if (!UI.transparent){ ctx.fillStyle = "#000"; ctx.fillRect(0,0,1080,1920); }
+      ctx.drawImage(shot,0,0);
+      await new Promise(r => requestAnimationFrame(r));
+    }
+  }
+  recorder.stop();
+}
 
+function bindUICheckbox(id, key){ document.getElementById(id).addEventListener("change", e => { UI[key] = e.target.checked; saveUIState(); render(); }); }
+
+document.getElementById("modeSeg").addEventListener("click", e => { const btn = e.target.closest("button[data-mode]"); if (!btn) return; setMode(btn.dataset.mode); });
 document.getElementById("prevBtn").addEventListener("click", () => shiftPeriod(-1));
 document.getElementById("todayBtn").addEventListener("click", resetToday);
 document.getElementById("nextBtn").addEventListener("click", () => shiftPeriod(1));
 document.getElementById("loopBtn").addEventListener("click", toggleLoop);
 
-document.getElementById("pngBtn").addEventListener("click", async () => {
-  try{
-    await exportCurrentPNG();
-  }catch(err){
-    console.error(err);
-    alert("PNG export failed. Check console for details.");
-  }
-});
-
-document.getElementById("packBtn").addEventListener("click", async () => {
-  try{
-    const btn = document.getElementById("packBtn");
-    const prev = btn.textContent;
-    btn.textContent = "BUILDING ZIP...";
-    btn.disabled = true;
-    await exportPackZIP();
-    btn.textContent = prev;
-    btn.disabled = false;
-  }catch(err){
-    console.error(err);
-    document.getElementById("packBtn").textContent = "EXPORT PACK ZIP";
-    document.getElementById("packBtn").disabled = false;
-    alert("Pack export failed. Check console for details.");
-  }
-});
-
+document.getElementById("pngBtn").addEventListener("click", async () => { try{ await exportCurrentPNG(false); } catch(err){ console.error(err); alert("PNG export failed. Check console for details."); } });
+document.getElementById("transparentPngBtn").addEventListener("click", async () => { try{ await exportCurrentPNG(true); } catch(err){ console.error(err); alert("Transparent PNG export failed. Check console for details."); } });
+document.getElementById("packBtn").addEventListener("click", async () => { const btn = document.getElementById("packBtn"); const prev = btn.textContent; try{ btn.textContent = "BUILDING ZIP..."; btn.disabled = true; await exportPackZIP(); } catch(err){ console.error(err); alert("Pack export failed. Check console for details."); } finally{ btn.textContent = prev; btn.disabled = false; } });
+document.getElementById("videoBtn").addEventListener("click", async () => { const btn = document.getElementById("videoBtn"); const prev = btn.textContent; try{ btn.textContent = "RENDERING..."; btn.disabled = true; await exportVideo(); } catch(err){ console.error(err); alert("Video export failed. Your browser may not support MediaRecorder WEBM export."); } finally{ btn.textContent = prev; btn.disabled = false; } });
 document.getElementById("saveEditBtn").addEventListener("click", saveCurrentEdit);
 document.getElementById("clearEditBtn").addEventListener("click", clearCurrentEdit);
 document.getElementById("resetOverridesBtn").addEventListener("click", resetAllOverrides);
 
-document.getElementById("transparentToggle").addEventListener("change", e => {
-  UI.transparent = e.target.checked;
-  saveUIState();
-  render();
-});
+bindUICheckbox("transparentToggle", "transparent");
+bindUICheckbox("animateToggle", "animate");
+bindUICheckbox("showTimeToggle", "showTime");
+bindUICheckbox("showGenreToggle", "showGenre");
+bindUICheckbox("showGuestsToggle", "showGuests");
+bindUICheckbox("meshToggle", "mesh");
+bindUICheckbox("blurToggle", "blur");
+bindUICheckbox("overlayToggle", "overlay");
+bindUICheckbox("safeZoneToggle", "showSafeZone");
+bindUICheckbox("extraDayPaddingToggle", "extraDayPadding");
 
-document.getElementById("animateToggle").addEventListener("change", e => {
-  UI.animate = e.target.checked;
-  saveUIState();
-  render();
-});
-
-document.getElementById("showTimeToggle").addEventListener("change", e => {
-  UI.showTime = e.target.checked;
-  saveUIState();
-  render();
-});
-
-document.getElementById("showGenreToggle").addEventListener("change", e => {
-  UI.showGenre = e.target.checked;
-  saveUIState();
-  render();
-});
-
-document.getElementById("showGuestsToggle").addEventListener("change", e => {
-  UI.showGuests = e.target.checked;
-  saveUIState();
-  render();
-});
-
-document.getElementById("monthLabelInput").addEventListener("input", e => {
-  UI.monthLabelOverride = e.target.value;
-  saveUIState();
-  render();
-});
-
-document.getElementById("dayScaleRange").addEventListener("input", e => {
-  UI.dayScale = Number(e.target.value);
-  document.getElementById("dayScaleValue").textContent = `${UI.dayScale}%`;
-  saveUIState();
-  render();
-});
-
+document.getElementById("monthLabelInput").addEventListener("input", e => { UI.monthLabelOverride = e.target.value; saveUIState(); render(); });
+document.getElementById("dayScaleRange").addEventListener("input", e => { UI.dayScale = Number(e.target.value); document.getElementById("dayScaleValue").textContent = `${UI.dayScale}%`; saveUIState(); render(); });
+document.getElementById("meshSpeedRange").addEventListener("input", e => { UI.meshSpeed = Number(e.target.value); document.getElementById("meshSpeedValue").textContent = String(UI.meshSpeed); saveUIState(); render(); });
+["color1","color2","color3","color4"].forEach(id => { document.getElementById(id).addEventListener("input", e => { UI[id] = e.target.value; saveUIState(); render(); }); });
 window.addEventListener("resize", updatePreview);
 
-Papa.parse(CSV_URL,{
+Papa.parse(CSV_URL, {
   download:true,
   header:true,
   complete(res){
-    ALL_ROWS = (res.data || [])
-      .filter(r => r.Date && r["Now Playing"])
-      .map(r => {
-        const row = clone(r);
-        row.__baseId = getRowId(r);
-        return row;
-      })
-      .sort((a,b) => parseLocalDate(a.Date) - parseLocalDate(b.Date));
-
-    syncControlsToUI();
-    resetToday();
-    currentMonthDate = new Date(2026, 3, 1);
-    setMode("month");
+    ALL_ROWS = (res.data || []).filter(r => r.Date && r["Now Playing"]).map(r => { const row = clone(r); row.__baseId = getRowId(r); return row; }).sort((a,b) => parseLocalDate(a.Date) - parseLocalDate(b.Date));
+    syncControlsToUI(); resetToday(); currentMonthDate = new Date(2026, 3, 1); setMode("month");
   }
 });
-
-function syncControlsToUI(){
-  document.getElementById("transparentToggle").checked = UI.transparent;
-  document.getElementById("animateToggle").checked = UI.animate;
-  document.getElementById("showTimeToggle").checked = UI.showTime;
-  document.getElementById("showGenreToggle").checked = UI.showGenre;
-  document.getElementById("showGuestsToggle").checked = UI.showGuests;
-  document.getElementById("monthLabelInput").value = UI.monthLabelOverride || "";
-  document.getElementById("dayScaleRange").value = UI.dayScale;
-  document.getElementById("dayScaleValue").textContent = `${UI.dayScale}%`;
-}
 </script>
 </body>
 </html>
