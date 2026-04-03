@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Mesh Schedule Super God Mode</title>
+<title>Mesh Schedule Super God Mode — Mega Edition</title>
 <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
@@ -16,114 +16,524 @@
     --fg:#fff;
     --muted:rgba(255,255,255,.55);
     --line:rgba(255,255,255,.08);
+    --accent:#fff;
   }
 
   *{ box-sizing:border-box; }
-  html,body{ margin:0; background:var(--ui-bg); color:#fff; font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
-  body{ min-height:100vh; display:flex; gap:20px; align-items:flex-start; justify-content:center; padding:20px; }
+  html,body{
+    margin:0;
+    background:var(--ui-bg);
+    color:#fff;
+    font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  }
+
+  body{
+    min-height:100vh;
+    display:flex;
+    gap:20px;
+    align-items:flex-start;
+    justify-content:center;
+    padding:20px;
+  }
 
   .panel{
-    width:370px; background:var(--panel); border:1px solid var(--panel-border); border-radius:18px;
-    padding:14px; display:flex; flex-direction:column; gap:12px; max-height:calc(100vh - 40px); overflow:auto;
+    width:390px;
+    background:linear-gradient(180deg,#0b0b0b,#080808);
+    border:1px solid var(--panel-border);
+    border-radius:18px;
+    padding:14px;
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+    max-height:calc(100vh - 40px);
+    overflow:auto;
+    box-shadow:0 20px 60px rgba(0,0,0,.35);
   }
-  .panel h2{ margin:0; font-size:14px; font-weight:700; letter-spacing:.02em; }
-  .section{ border-top:1px solid #1b1b1b; padding-top:12px; }
-  .section h3{ margin:0 0 8px; font-size:11px; letter-spacing:.14em; color:#ddd; text-transform:uppercase; }
-  .row,.seg{ display:flex; gap:8px; flex-wrap:wrap; }
+
+  .panel h2{
+    margin:0;
+    font-size:14px;
+    font-weight:800;
+    letter-spacing:.05em;
+    text-transform:uppercase;
+  }
+
+  .section{
+    border-top:1px solid #1b1b1b;
+    padding-top:12px;
+  }
+
+  .section h3{
+    margin:0 0 8px;
+    font-size:11px;
+    letter-spacing:.14em;
+    color:#ddd;
+    text-transform:uppercase;
+  }
+
+  .row,.seg{
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
+  }
+
   .seg{ gap:6px; }
 
   button,.seg button{
-    appearance:none; border:1px solid #2a2a2a; background:#101010; color:#fff; padding:8px 10px;
-    border-radius:999px; font-size:11px; font-weight:700; cursor:pointer; letter-spacing:.04em;
+    appearance:none;
+    border:1px solid #2a2a2a;
+    background:#101010;
+    color:#fff;
+    padding:8px 10px;
+    border-radius:999px;
+    font-size:11px;
+    font-weight:800;
+    cursor:pointer;
+    letter-spacing:.04em;
+    transition:.18s ease;
   }
-  button:hover,.seg button:hover{ border-color:#555; }
-  .seg button.active{ background:#fff; color:#000; border-color:#fff; }
-  button.danger{ border-color:#5a2020; color:#ffb8b8; }
 
-  label{ display:flex; align-items:center; gap:8px; font-size:12px; color:#ddd; margin:6px 0; }
-  .field{ display:flex; flex-direction:column; gap:6px; margin-bottom:10px; }
-  .field span{ font-size:11px; text-transform:uppercase; letter-spacing:.08em; color:#bdbdbd; }
-  input,textarea,select{ width:100%; background:#0d0d0d; border:1px solid #262626; color:#fff; border-radius:10px; padding:10px 11px; font:inherit; font-size:12px; }
-  input[type="color"]{ height:38px; padding:4px; }
-  textarea{ min-height:78px; resize:vertical; }
-  .small{ font-size:10px; color:#9b9b9b; line-height:1.4; }
-  .selected{ padding:10px; border:1px solid #222; background:#101010; border-radius:12px; font-size:11px; line-height:1.45; color:#ddd; }
-  .range-line{ display:flex; align-items:center; gap:10px; }
-  .range-line input[type="range"]{ flex:1; }
+  button:hover,.seg button:hover{
+    border-color:#666;
+    transform:translateY(-1px);
+  }
 
-  .preview-shell{ flex:0 0 auto; position:sticky; top:20px; }
+  .seg button.active{
+    background:#fff;
+    color:#000;
+    border-color:#fff;
+  }
+
+  button.danger{
+    border-color:#5a2020;
+    color:#ffb8b8;
+  }
+
+  button.subtle{
+    color:#ccc;
+  }
+
+  label{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    font-size:12px;
+    color:#ddd;
+    margin:6px 0;
+  }
+
+  .field{
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+    margin-bottom:10px;
+  }
+
+  .field span{
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:.08em;
+    color:#bdbdbd;
+  }
+
+  input,textarea,select{
+    width:100%;
+    background:#0d0d0d;
+    border:1px solid #262626;
+    color:#fff;
+    border-radius:10px;
+    padding:10px 11px;
+    font:inherit;
+    font-size:12px;
+  }
+
+  input[type="color"]{
+    height:38px;
+    padding:4px;
+  }
+
+  textarea{
+    min-height:78px;
+    resize:vertical;
+  }
+
+  .small{
+    font-size:10px;
+    color:#9b9b9b;
+    line-height:1.4;
+  }
+
+  .selected{
+    padding:10px;
+    border:1px solid #222;
+    background:#101010;
+    border-radius:12px;
+    font-size:11px;
+    line-height:1.45;
+    color:#ddd;
+  }
+
+  .range-line{
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+
+  .range-line input[type="range"]{
+    flex:1;
+  }
+
+  .mini-preset-grid{
+    display:grid;
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:8px;
+  }
+
+  .mini-preset-grid button{
+    width:100%;
+    justify-content:center;
+  }
+
+  .preview-shell{
+    flex:0 0 auto;
+    position:sticky;
+    top:20px;
+  }
+
   .preview-frame{
-    width:min(420px, calc((100vh - 40px) * 9 / 16)); aspect-ratio:9 / 16; display:flex; align-items:center; justify-content:center;
-    overflow:hidden; border-radius:20px;
+    width:min(420px,94vw);
+    aspect-ratio:9 / 16;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    overflow:hidden;
+    border-radius:20px;
     background:
       linear-gradient(45deg, #222 25%, transparent 25%),
       linear-gradient(-45deg, #222 25%, transparent 25%),
       linear-gradient(45deg, transparent 75%, #222 75%),
       linear-gradient(-45deg, transparent 75%, #222 75%);
-    background-size:20px 20px; background-position:0 0, 0 10px, 10px -10px, -10px 0px;
+    background-size:20px 20px;
+    background-position:0 0, 0 10px, 10px -10px, -10px 0px;
+    box-shadow:0 24px 70px rgba(0,0,0,.35);
   }
-  .preview-viewport{ width:1080px; height:1920px; transform-origin:center center; overflow:hidden; flex:0 0 auto; }
-  #exportStage{ position:fixed; left:-99999px; top:-99999px; width:1080px; height:1920px; overflow:hidden; pointer-events:none; }
 
-  .story-canvas{ width:1080px; height:1920px; color:#fff; overflow:hidden; position:relative; isolation:isolate; background:#000; }
+  .preview-viewport{
+    width:1080px;
+    height:1920px;
+    transform-origin:center center;
+    overflow:hidden;
+    flex:0 0 auto;
+    transition:opacity .18s ease;
+  }
+
+  #exportStage{
+    position:fixed;
+    left:-99999px;
+    top:-99999px;
+    width:1080px;
+    height:1920px;
+    overflow:hidden;
+    pointer-events:none;
+  }
+
+  .story-canvas{
+    width:1080px;
+    height:1920px;
+    color:#fff;
+    overflow:hidden;
+    position:relative;
+    isolation:isolate;
+    background:#000;
+  }
+
   .story-canvas.transparent{ background:transparent; }
-  .mesh-bg{ position:absolute; inset:0; z-index:0; pointer-events:none; }
-  .story-overlay{ position:absolute; inset:0; z-index:1; pointer-events:none; background:linear-gradient(to bottom, rgba(0,0,0,.12), rgba(0,0,0,.32)); }
+
+  .mesh-bg{
+    position:absolute;
+    inset:0;
+    z-index:0;
+    pointer-events:none;
+  }
+
+  .story-overlay{
+    position:absolute;
+    inset:0;
+    z-index:1;
+    pointer-events:none;
+    background:linear-gradient(to bottom, rgba(0,0,0,.12), rgba(0,0,0,.32));
+  }
+
   .story-canvas.transparent .story-overlay{ background:none; }
 
-  .story-inner{ position:relative; z-index:2; width:100%; height:100%; display:flex; flex-direction:column; min-height:0; padding:140px 40px 180px; }
-  .story-inner.tight-safe{ padding-top:110px; padding-bottom:150px; }
-  .story-inner.relaxed-safe{ padding-top:160px; padding-bottom:220px; }
-  .safe-zone-guide{ position:absolute; left:40px; right:40px; top:140px; bottom:180px; border:2px dashed rgba(255,255,255,.14); border-radius:16px; z-index:3; pointer-events:none; }
+  .story-inner{
+    position:relative;
+    z-index:2;
+    width:100%;
+    height:100%;
+    display:flex;
+    flex-direction:column;
+    min-height:0;
+    transition:padding .16s ease;
+  }
 
-  .story-label{ font-size:28px; letter-spacing:.28em; color:var(--muted); text-transform:uppercase; margin-bottom:24px; flex:0 0 auto; }
-  .story-content{ flex:1; min-height:0; display:flex; flex-direction:column; }
-  .columns{ flex:1; display:grid; min-height:0; }
-  .col{ display:flex; flex-direction:column; min-height:0; }
+  .safe-zone-guide{
+    position:absolute;
+    border:2px dashed rgba(255,255,255,.14);
+    border-radius:20px;
+    z-index:3;
+    pointer-events:none;
+  }
 
-  .show{ opacity:0; transform:translateY(12px); animation:fadeUp .45s cubic-bezier(.16,1,.3,1) forwards; cursor:pointer; }
-  .no-anim .show,.no-anim .day-card,.no-anim .lineup-item,.no-anim .tonight-card{ animation:none !important; opacity:1 !important; transform:none !important; }
-  @keyframes fadeUp{ to{ opacity:1; transform:translateY(0); } }
+  .content-box-guide{
+    position:absolute;
+    border:2px solid rgba(255,255,255,.24);
+    border-radius:20px;
+    z-index:3;
+    pointer-events:none;
+  }
 
-  .columns.month{ grid-template-columns:1fr 1fr; gap:18px; }
-  .columns.month .show{ display:grid; grid-template-columns:52px 1fr auto; gap:8px; align-items:center; padding:2px 0; line-height:1.05; }
-  .columns.month .day{ font-size:18px; color:var(--muted); }
-  .columns.month .title{ font-size:20px; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-  .columns.month .time{ font-size:18px; white-space:nowrap; }
+  .story-label{
+    font-size:28px;
+    letter-spacing:.28em;
+    color:var(--muted);
+    text-transform:uppercase;
+    margin-bottom:24px;
+    flex:0 0 auto;
+  }
 
-  .columns.week{ grid-template-columns:1fr; gap:0; }
-  .columns.week.two-col{ grid-template-columns:1fr 1fr; gap:24px; }
-  .columns.week .show{ display:grid; grid-template-columns:68px 1fr auto; gap:14px; align-items:center; padding:13px 0; border-bottom:1px solid var(--line); line-height:1.05; }
-  .columns.week.two-col .show{ grid-template-columns:54px 1fr auto; gap:10px; padding:7px 0; }
-  .columns.week .day{ font-size:22px; color:var(--muted); }
-  .columns.week .title{ font-size:24px; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .story-content{
+    flex:1;
+    min-height:0;
+    display:flex;
+    flex-direction:column;
+  }
+
+  .columns{
+    flex:1;
+    display:grid;
+    min-height:0;
+  }
+
+  .col{
+    display:flex;
+    flex-direction:column;
+    min-height:0;
+  }
+
+  .show{
+    opacity:0;
+    transform:translateY(12px);
+    animation:fadeUp .45s cubic-bezier(.16,1,.3,1) forwards;
+    cursor:pointer;
+  }
+
+  .no-anim .show,
+  .no-anim .day-card,
+  .no-anim .lineup-item,
+  .no-anim .tonight-card{
+    animation:none !important;
+    opacity:1 !important;
+    transform:none !important;
+  }
+
+  @keyframes fadeUp{
+    to{ opacity:1; transform:translateY(0); }
+  }
+
+  .columns.month{
+    grid-template-columns:1fr 1fr;
+    gap:18px;
+  }
+
+  .columns.month .show{
+    display:grid;
+    grid-template-columns:52px 1fr auto;
+    gap:8px;
+    align-items:center;
+    padding:3px 0;
+    line-height:1.05;
+  }
+
+  .columns.month .day{
+    font-size:18px;
+    color:var(--muted);
+  }
+
+  .columns.month .title{
+    font-size:20px;
+    font-weight:700;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+
+  .columns.month .time{
+    font-size:18px;
+    white-space:nowrap;
+  }
+
+  .columns.week{
+    grid-template-columns:1fr;
+    gap:0;
+  }
+
+  .columns.week.two-col{
+    grid-template-columns:1fr 1fr;
+    gap:24px;
+  }
+
+  .columns.week .show{
+    display:grid;
+    grid-template-columns:68px 1fr auto;
+    gap:14px;
+    align-items:center;
+    padding:13px 0;
+    border-bottom:1px solid var(--line);
+    line-height:1.05;
+  }
+
+  .columns.week.two-col .show{
+    grid-template-columns:54px 1fr auto;
+    gap:10px;
+    padding:7px 0;
+  }
+
+  .columns.week .day{
+    font-size:22px;
+    color:var(--muted);
+  }
+
+  .columns.week .title{
+    font-size:24px;
+    font-weight:700;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+
   .columns.week.two-col .title{ font-size:20px; }
-  .columns.week .time{ font-size:19px; white-space:nowrap; }
 
-  .day-stack{ flex:1; display:flex; flex-direction:column; justify-content:flex-start; gap:28px; min-height:0; padding-top:6px; }
-  .day-card,.tonight-card{ border-top:1px solid var(--line); padding-top:18px; opacity:0; transform:translateY(16px); animation:fadeUp .55s cubic-bezier(.16,1,.3,1) forwards; cursor:pointer; }
-  .day-card.featured,.tonight-card.featured{ border-top-color:#fff; }
-  .day-card.featured .day-kicker,.day-card.featured .day-title,.tonight-card.featured .day-kicker,.tonight-card.featured .day-title{ color:#fff; }
-  .day-kicker{ font-size:24px; letter-spacing:.24em; color:var(--muted); text-transform:uppercase; margin-bottom:14px; }
-  .day-title{ font-size:50px; font-weight:800; line-height:1.02; letter-spacing:-.04em; }
-  .day-genre{ font-size:28px; color:rgba(255,255,255,.66); line-height:1.3; margin-top:14px; }
-  .day-time{ font-size:30px; margin-top:16px; letter-spacing:.08em; text-transform:uppercase; }
+  .columns.week .time{
+    font-size:19px;
+    white-space:nowrap;
+  }
 
-  .lineup-stack{ flex:1; display:flex; flex-direction:column; justify-content:flex-start; gap:12px; min-height:0; padding-top:10px; }
-  .lineup-item{ font-size:34px; font-weight:800; line-height:1.05; letter-spacing:-.03em; opacity:0; transform:translateY(10px); animation:fadeUp .45s cubic-bezier(.16,1,.3,1) forwards; cursor:pointer; }
-  .lineup-sub{ font-size:17px; color:var(--muted); margin-top:3px; font-weight:500; letter-spacing:.04em; }
+  .day-stack{
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    justify-content:flex-start;
+    gap:28px;
+    min-height:0;
+    padding-top:6px;
+  }
+
+  .day-card,.tonight-card{
+    border-top:1px solid var(--line);
+    padding-top:18px;
+    opacity:0;
+    transform:translateY(16px);
+    animation:fadeUp .55s cubic-bezier(.16,1,.3,1) forwards;
+    cursor:pointer;
+  }
+
+  .day-card.featured,.tonight-card.featured{
+    border-top-color:#fff;
+  }
+
+  .day-card.featured .day-kicker,
+  .day-card.featured .day-title,
+  .tonight-card.featured .day-kicker,
+  .tonight-card.featured .day-title{
+    color:#fff;
+  }
+
+  .day-kicker{
+    font-size:24px;
+    letter-spacing:.24em;
+    color:var(--muted);
+    text-transform:uppercase;
+    margin-bottom:14px;
+  }
+
+  .day-title{
+    font-size:50px;
+    font-weight:800;
+    line-height:1.02;
+    letter-spacing:-.04em;
+  }
+
+  .day-genre{
+    font-size:28px;
+    color:rgba(255,255,255,.66);
+    line-height:1.3;
+    margin-top:14px;
+  }
+
+  .day-time{
+    font-size:30px;
+    margin-top:16px;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+  }
+
+  .lineup-stack{
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    justify-content:flex-start;
+    gap:12px;
+    min-height:0;
+    padding-top:10px;
+  }
+
+  .lineup-item{
+    font-size:34px;
+    font-weight:800;
+    line-height:1.05;
+    letter-spacing:-.03em;
+    opacity:0;
+    transform:translateY(10px);
+    animation:fadeUp .45s cubic-bezier(.16,1,.3,1) forwards;
+    cursor:pointer;
+  }
+
+  .lineup-sub{
+    font-size:17px;
+    color:var(--muted);
+    margin-top:3px;
+    font-weight:500;
+    letter-spacing:.04em;
+  }
+
+  .footer-note{
+    margin-top:4px;
+    font-size:10px;
+    color:#777;
+  }
 
   @media (max-width: 1024px){
-    body{ flex-direction:column; align-items:center; }
-    .preview-shell{ position:static; }
-    .panel{ width:min(94vw, 640px); max-height:none; }
-    .preview-frame{ width:min(94vw, 420px); }
+    body{
+      flex-direction:column;
+      align-items:center;
+    }
+    .preview-shell{
+      position:static;
+    }
+    .panel{
+      width:min(94vw, 680px);
+      max-height:none;
+    }
+    .preview-frame{
+      width:min(94vw, 420px);
+    }
   }
 </style>
 </head>
 <body>
   <div class="panel">
-    <h2>Mesh Super God Mode</h2>
+    <h2>Mesh Super God Mode — Mega</h2>
 
     <div class="section">
       <h3>Mode</h3>
@@ -178,10 +588,61 @@
     </div>
 
     <div class="section">
-      <h3>Instagram Safe Zone</h3>
+      <h3>Guides / Safe Zones</h3>
       <label><input type="checkbox" id="safeZoneToggle"> Show IG safe zone guide</label>
+      <label><input type="checkbox" id="contentBoxToggle"> Show content box guide</label>
       <label><input type="checkbox" id="extraDayPaddingToggle" checked> Extra padding for day / tonight</label>
-      <div class="small">Extra day padding helps keep handles, reply bars, and top UI clear.</div>
+
+      <div class="range-line">
+        <span class="small">Safe top</span>
+        <input type="range" id="safeTop" min="40" max="400" value="140">
+        <span class="small" id="safeTopVal">140</span>
+      </div>
+      <div class="range-line">
+        <span class="small">Safe bottom</span>
+        <input type="range" id="safeBottom" min="40" max="500" value="180">
+        <span class="small" id="safeBottomVal">180</span>
+      </div>
+      <div class="range-line">
+        <span class="small">Safe sides</span>
+        <input type="range" id="safeSides" min="20" max="180" value="40">
+        <span class="small" id="safeSidesVal">40</span>
+      </div>
+
+      <div class="small">Safe zone is now separate from the actual content print area.</div>
+    </div>
+
+    <div class="section">
+      <h3>Content Box Control</h3>
+
+      <div class="mini-preset-grid">
+        <button id="presetTightBtn" class="subtle">TIGHT</button>
+        <button id="presetBalancedBtn">BALANCED</button>
+        <button id="presetSafeBtn">IG SAFE</button>
+      </div>
+
+      <div class="range-line" style="margin-top:10px;">
+        <span class="small">Top</span>
+        <input type="range" id="padTop" min="40" max="450" value="180">
+        <span class="small" id="padTopVal">180</span>
+      </div>
+      <div class="range-line">
+        <span class="small">Bottom</span>
+        <input type="range" id="padBottom" min="40" max="500" value="250">
+        <span class="small" id="padBottomVal">250</span>
+      </div>
+      <div class="range-line">
+        <span class="small">Sides</span>
+        <input type="range" id="padSides" min="20" max="220" value="78">
+        <span class="small" id="padSidesVal">78</span>
+      </div>
+      <div class="range-line">
+        <span class="small">Inside safe buffer</span>
+        <input type="range" id="innerBuffer" min="0" max="120" value="24">
+        <span class="small" id="innerBufferVal">24</span>
+      </div>
+
+      <div class="small">Content box = where text is actually allowed to render. Safe zone = visual Instagram guide.</div>
     </div>
 
     <div class="section">
@@ -189,6 +650,7 @@
       <label><input type="checkbox" id="showTimeToggle" checked> Show times</label>
       <label><input type="checkbox" id="showGenreToggle" checked> Show genres in day view</label>
       <label><input type="checkbox" id="showGuestsToggle" checked> Include guests in day / lineup</label>
+      <label><input type="checkbox" id="autoFitToggle" checked> Auto-fit content to box</label>
 
       <div class="field">
         <span>Month label override</span>
@@ -197,8 +659,23 @@
 
       <div class="range-line">
         <span class="small">Day scale</span>
-        <input type="range" id="dayScaleRange" min="80" max="145" value="100">
+        <input type="range" id="dayScaleRange" min="70" max="145" value="100">
         <span class="small" id="dayScaleValue">100%</span>
+      </div>
+      <div class="range-line">
+        <span class="small">Month text size</span>
+        <input type="range" id="monthScaleRange" min="80" max="140" value="100">
+        <span class="small" id="monthScaleValue">100%</span>
+      </div>
+      <div class="range-line">
+        <span class="small">Week text size</span>
+        <input type="range" id="weekScaleRange" min="80" max="140" value="100">
+        <span class="small" id="weekScaleValue">100%</span>
+      </div>
+      <div class="range-line">
+        <span class="small">Lineup text size</span>
+        <input type="range" id="lineupScaleRange" min="75" max="140" value="100">
+        <span class="small" id="lineupScaleValue">100%</span>
       </div>
     </div>
 
@@ -230,6 +707,7 @@
       <div class="row" style="margin-top:10px;">
         <button class="danger" id="resetOverridesBtn">RESET ALL OVERRIDES</button>
       </div>
+      <div class="footer-note">Mega mode now separates safe guide, content box, and auto-fit logic so the text stays well away from the edges.</div>
     </div>
   </div>
 
@@ -243,8 +721,8 @@
 
 <script>
 const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTavGvSojxM1vYpMv0FSoC-WzIK3IqTYPNl1SYbya4iV8VJUaEmHso7yghmGQPLJvwpsEMzKjbonPDz/pub?output=csv";
-const STORAGE_KEY = "mesh_schedule_overrides_v4";
-const UI_KEY = "mesh_schedule_ui_v4";
+const STORAGE_KEY = "mesh_schedule_overrides_v5";
+const UI_KEY = "mesh_schedule_ui_v5";
 
 let ALL_ROWS = [];
 let OVERRIDES = loadOverrides();
@@ -257,72 +735,257 @@ let currentMonthDate = new Date(2026, 3, 1);
 let currentWeekDate = new Date();
 let currentDayDate = new Date();
 
-function loadOverrides(){ try{ return JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}"); } catch{ return {}; } }
-function saveOverrides(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(OVERRIDES)); }
+function loadOverrides(){
+  try{ return JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}"); }
+  catch{ return {}; }
+}
+
+function saveOverrides(){
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(OVERRIDES));
+}
+
 function loadUIState(){
   try{
     return {
-      transparent:false, animate:true, showTime:true, showGenre:true, showGuests:true,
-      monthLabelOverride:"", dayScale:100, mesh:false, blur:false, overlay:true, meshSpeed:10,
-      color1:"#ff5a00", color2:"#ff1f00", color3:"#120000", color4:"#000000",
-      showSafeZone:false, extraDayPadding:true,
+      transparent:false,
+      animate:true,
+      showTime:true,
+      showGenre:true,
+      showGuests:true,
+      monthLabelOverride:"",
+      dayScale:100,
+      monthScale:100,
+      weekScale:100,
+      lineupScale:100,
+      mesh:false,
+      blur:false,
+      overlay:true,
+      meshSpeed:10,
+      color1:"#ff5a00",
+      color2:"#ff1f00",
+      color3:"#120000",
+      color4:"#000000",
+      showSafeZone:false,
+      showContentBox:false,
+      extraDayPadding:true,
+      autoFit:true,
+
+      safeTop:140,
+      safeBottom:180,
+      safeSides:40,
+
+      padTop:180,
+      padBottom:250,
+      padSides:78,
+      innerBuffer:24,
+
       ...JSON.parse(localStorage.getItem(UI_KEY) || "{}")
     };
   }catch{
-    return { transparent:false, animate:true, showTime:true, showGenre:true, showGuests:true, monthLabelOverride:"", dayScale:100, mesh:false, blur:false, overlay:true, meshSpeed:10, color1:"#ff5a00", color2:"#ff1f00", color3:"#120000", color4:"#000000", showSafeZone:false, extraDayPadding:true };
+    return {
+      transparent:false,
+      animate:true,
+      showTime:true,
+      showGenre:true,
+      showGuests:true,
+      monthLabelOverride:"",
+      dayScale:100,
+      monthScale:100,
+      weekScale:100,
+      lineupScale:100,
+      mesh:false,
+      blur:false,
+      overlay:true,
+      meshSpeed:10,
+      color1:"#ff5a00",
+      color2:"#ff1f00",
+      color3:"#120000",
+      color4:"#000000",
+      showSafeZone:false,
+      showContentBox:false,
+      extraDayPadding:true,
+      autoFit:true,
+      safeTop:140,
+      safeBottom:180,
+      safeSides:40,
+      padTop:180,
+      padBottom:250,
+      padSides:78,
+      innerBuffer:24
+    };
   }
 }
-function saveUIState(){ localStorage.setItem(UI_KEY, JSON.stringify(UI)); }
-function parseLocalDate(s){ if(!s) return null; const d = new Date(s + "T00:00:00"); return isNaN(d) ? null : d; }
-function getRowId(row){ if (row.__baseId) return row.__baseId; return [row.Date || "", row["A-B"] || "", row["Now Playing"] || "", row.DJ || ""].join("||"); }
-function clone(obj){ return JSON.parse(JSON.stringify(obj)); }
-function escapeHtml(str){ return String(str ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\"/g, "&quot;").replace(/'/g, "&#039;"); }
-function getDay(dateStr){ const d = parseLocalDate(dateStr); return d ? String(d.getDate()).padStart(2, "0") : ""; }
-function formatMonthYear(date){ return date.toLocaleDateString("en-GB", { month:"long", year:"numeric" }).toUpperCase(); }
-function formatWeekLabel(start, end){ const a = start.toLocaleDateString("en-GB", { day:"2-digit", month:"short" }).toUpperCase(); const b = end.toLocaleDateString("en-GB", { day:"2-digit", month:"short", year:"numeric" }).toUpperCase(); return `${a} — ${b}`; }
-function formatDayLabel(date){ return date.toLocaleDateString("en-GB", { weekday:"long", day:"numeric", month:"long", year:"numeric" }).toUpperCase(); }
+
+function saveUIState(){
+  localStorage.setItem(UI_KEY, JSON.stringify(UI));
+}
+
+function clone(obj){
+  return JSON.parse(JSON.stringify(obj));
+}
+
+function parseLocalDate(s){
+  if(!s) return null;
+  const d = new Date(s + "T00:00:00");
+  return isNaN(d) ? null : d;
+}
+
+function escapeHtml(str){
+  return String(str ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/\"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+function getRowId(row){
+  if (row.__baseId) return row.__baseId;
+  return [row.Date || "", row["A-B"] || "", row["Now Playing"] || "", row.DJ || ""].join("||");
+}
+
+function getDay(dateStr){
+  const d = parseLocalDate(dateStr);
+  return d ? String(d.getDate()).padStart(2, "0") : "";
+}
+
+function formatMonthYear(date){
+  return date.toLocaleDateString("en-GB", { month:"long", year:"numeric" }).toUpperCase();
+}
+
+function formatWeekLabel(start, end){
+  const a = start.toLocaleDateString("en-GB", { day:"2-digit", month:"short" }).toUpperCase();
+  const b = end.toLocaleDateString("en-GB", { day:"2-digit", month:"short", year:"numeric" }).toUpperCase();
+  return `${a} — ${b}`;
+}
+
+function formatDayLabel(date){
+  return date.toLocaleDateString("en-GB", { weekday:"long", day:"numeric", month:"long", year:"numeric" }).toUpperCase();
+}
+
 function to12hr(range){
   if(!range || !range.includes("-")) return "";
   const [a,b] = range.split("-").map(s => s.trim());
-  const f = t => { let [h,m] = t.split(":").map(Number); if (Number.isNaN(h)) return t; const suffix = h >= 12 ? "PM" : "AM"; h = h % 12 || 12; return m === 0 ? `${h}${suffix}` : `${h}:${String(m).padStart(2,"0")}${suffix}`; };
+  const f = t => {
+    let [h,m] = t.split(":").map(Number);
+    if (Number.isNaN(h)) return t;
+    const suffix = h >= 12 ? "PM" : "AM";
+    h = h % 12 || 12;
+    return m === 0 ? `${h}${suffix}` : `${h}:${String(m).padStart(2,"0")}${suffix}`;
+  };
   return `${f(a)}–${f(b)}`;
 }
-function startDateTime(row){ const start = row["A-B"]?.split("-")[0]?.trim() || "00:00"; return new Date(`${row.Date}T${start}`); }
-function sortRows(rows){ return rows.slice().sort((a,b) => startDateTime(a) - startDateTime(b)); }
-function applyOverrides(baseRow){ const id = getRowId(baseRow); const row = clone(baseRow); row.__baseId = id; if (OVERRIDES[id]) Object.assign(row, OVERRIDES[id]); return row; }
-function buildDjLine(row){ const bits = []; if (row.DJ) bits.push(row.DJ); if (UI.showGuests){ if (row["Guest DJ"]) bits.push(row["Guest DJ"]); if (row["Guest MC"]) bits.push(row["Guest MC"]); } return bits.join(" + "); }
-function buildDayTitle(row){ const djLine = buildDjLine(row); if (!djLine) return row["Now Playing"] || ""; return row.useWith === false ? `${row["Now Playing"]} ${djLine}` : `${row["Now Playing"]} w/ ${djLine}`; }
-function getBaseRows(){ return ALL_ROWS.map(applyOverrides).filter(r => !r.hidden); }
+
+function startDateTime(row){
+  const start = row["A-B"]?.split("-")[0]?.trim() || "00:00";
+  return new Date(`${row.Date}T${start}`);
+}
+
+function sortRows(rows){
+  return rows.slice().sort((a,b) => startDateTime(a) - startDateTime(b));
+}
+
+function applyOverrides(baseRow){
+  const id = getRowId(baseRow);
+  const row = clone(baseRow);
+  row.__baseId = id;
+  if (OVERRIDES[id]) Object.assign(row, OVERRIDES[id]);
+  return row;
+}
+
+function buildDjLine(row){
+  const bits = [];
+  if (row.DJ) bits.push(row.DJ);
+  if (UI.showGuests){
+    if (row["Guest DJ"]) bits.push(row["Guest DJ"]);
+    if (row["Guest MC"]) bits.push(row["Guest MC"]);
+  }
+  return bits.join(" + ");
+}
+
+function buildDayTitle(row){
+  const djLine = buildDjLine(row);
+  if (!djLine) return row["Now Playing"] || "";
+  return row.useWith === false
+    ? `${row["Now Playing"]} ${djLine}`
+    : `${row["Now Playing"]} w/ ${djLine}`;
+}
+
+function getBaseRows(){
+  return ALL_ROWS.map(applyOverrides).filter(r => !r.hidden);
+}
 
 function getRowsForMode(mode, refDate = null){
   const rows = getBaseRows();
+
   if (mode === "month"){
-    const date = refDate || currentMonthDate; const month = date.getMonth(); const year = date.getFullYear();
-    return rows.filter(r => { const d = parseLocalDate(r.Date); return d && d.getMonth() === month && d.getFullYear() === year; });
+    const date = refDate || currentMonthDate;
+    const month = date.getMonth();
+    const year = date.getFullYear();
+    return rows.filter(r => {
+      const d = parseLocalDate(r.Date);
+      return d && d.getMonth() === month && d.getFullYear() === year;
+    });
   }
+
   if (mode === "week"){
-    const date = refDate || currentWeekDate; const start = new Date(date); const day = start.getDay(); const diff = (day + 6) % 7; start.setDate(start.getDate() - diff); start.setHours(0,0,0,0); const end = new Date(start); end.setDate(end.getDate() + 6); end.setHours(23,59,59,999);
-    return rows.filter(r => { const d = parseLocalDate(r.Date); return d && d >= start && d <= end; });
+    const date = refDate || currentWeekDate;
+    const start = new Date(date);
+    const day = start.getDay();
+    const diff = (day + 6) % 7;
+    start.setDate(start.getDate() - diff);
+    start.setHours(0,0,0,0);
+    const end = new Date(start);
+    end.setDate(end.getDate() + 6);
+    end.setHours(23,59,59,999);
+
+    return rows.filter(r => {
+      const d = parseLocalDate(r.Date);
+      return d && d >= start && d <= end;
+    });
   }
+
   if (mode === "day"){
-    const date = refDate || currentDayDate; return rows.filter(r => { const d = parseLocalDate(r.Date); return d && d.toDateString() === date.toDateString(); });
+    const date = refDate || currentDayDate;
+    return rows.filter(r => {
+      const d = parseLocalDate(r.Date);
+      return d && d.toDateString() === date.toDateString();
+    });
   }
+
   if (mode === "tonight"){
-    const now = new Date(); return sortRows(rows).filter(r => startDateTime(r) >= now).slice(0, 1);
+    const now = new Date();
+    return sortRows(rows).filter(r => startDateTime(r) >= now).slice(0, 1);
   }
+
   if (mode === "lineup"){
-    const date = refDate || currentMonthDate; const month = date.getMonth(); const year = date.getFullYear();
-    return rows.filter(r => { const d = parseLocalDate(r.Date); return d && d.getMonth() === month && d.getFullYear() === year; });
+    const date = refDate || currentMonthDate;
+    const month = date.getMonth();
+    const year = date.getFullYear();
+    return rows.filter(r => {
+      const d = parseLocalDate(r.Date);
+      return d && d.getMonth() === month && d.getFullYear() === year;
+    });
   }
+
   return rows;
 }
 
 function getLabelForMode(mode, refDate = null){
   if (mode === "month") return UI.monthLabelOverride?.trim() || formatMonthYear(refDate || currentMonthDate);
+
   if (mode === "week"){
-    const date = refDate || currentWeekDate; const start = new Date(date); const day = start.getDay(); const diff = (day + 6) % 7; start.setDate(start.getDate() - diff); start.setHours(0,0,0,0); const end = new Date(start); end.setDate(end.getDate() + 6);
+    const date = refDate || currentWeekDate;
+    const start = new Date(date);
+    const day = start.getDay();
+    const diff = (day + 6) % 7;
+    start.setDate(start.getDate() - diff);
+    start.setHours(0,0,0,0);
+    const end = new Date(start);
+    end.setDate(end.getDate() + 6);
     return formatWeekLabel(start, end);
   }
+
   if (mode === "day") return formatDayLabel(refDate || currentDayDate);
   if (mode === "tonight") return "TONIGHT";
   if (mode === "lineup") return `${formatMonthYear(refDate || currentMonthDate)} LINEUP`;
@@ -330,37 +993,145 @@ function getLabelForMode(mode, refDate = null){
 }
 
 function maybeAnimate(el, i, step){
-  if (!UI.animate){ el.style.animation = "none"; el.style.opacity = "1"; el.style.transform = "none"; }
-  else { el.style.animationDelay = `${i * step}s`; }
+  if (!UI.animate){
+    el.style.animation = "none";
+    el.style.opacity = "1";
+    el.style.transform = "none";
+  } else {
+    el.style.animationDelay = `${i * step}s`;
+  }
 }
-function selectRow(row){ SELECTED_ID = row.__baseId || getRowId(row); populateEditor(row); }
+
+function selectRow(row){
+  SELECTED_ID = row.__baseId || getRowId(row);
+  populateEditor(row);
+  const panel = document.querySelector(".panel");
+  panel.scrollTo({ top: panel.scrollHeight * 0.55, behavior: "smooth" });
+}
 
 function createMeshCanvas(){
   const canvas = document.createElement("canvas");
   canvas.className = "mesh-bg";
-  canvas.width = 1080; canvas.height = 1920;
+  canvas.width = 1080;
+  canvas.height = 1920;
+
   const ctx = canvas.getContext("2d");
   let t = 0;
+
   function draw(){
     const w = canvas.width, h = canvas.height;
     ctx.clearRect(0,0,w,h);
-    const bg = ctx.createLinearGradient(0,0,w,h); bg.addColorStop(0, UI.color4); bg.addColorStop(1, "#000000"); ctx.fillStyle = bg; ctx.fillRect(0,0,w,h);
-    const x1 = w * (0.25 + Math.sin(t * 0.9) * 0.12), y1 = h * (0.22 + Math.cos(t * 1.1) * 0.08);
-    const x2 = w * (0.76 + Math.cos(t * 1.2) * 0.10), y2 = h * (0.36 + Math.sin(t * 1.0) * 0.10);
-    const x3 = w * (0.48 + Math.sin(t * 0.7) * 0.14), y3 = h * (0.82 + Math.cos(t * 1.3) * 0.08);
-    const g1 = ctx.createRadialGradient(x1,y1,20,x1,y1,420); g1.addColorStop(0, UI.color1); g1.addColorStop(1, "transparent");
-    const g2 = ctx.createRadialGradient(x2,y2,20,x2,y2,460); g2.addColorStop(0, UI.color2); g2.addColorStop(1, "transparent");
-    const g3 = ctx.createRadialGradient(x3,y3,30,x3,y3,520); g3.addColorStop(0, UI.color3); g3.addColorStop(1, "transparent");
-    ctx.save(); ctx.filter = UI.blur ? "blur(95px)" : "blur(50px)"; ctx.fillStyle = g1; ctx.fillRect(0,0,w,h); ctx.fillStyle = g2; ctx.fillRect(0,0,w,h); ctx.fillStyle = g3; ctx.fillRect(0,0,w,h); ctx.restore();
+
+    const bg = ctx.createLinearGradient(0,0,w,h);
+    bg.addColorStop(0, UI.color4);
+    bg.addColorStop(1, "#000000");
+    ctx.fillStyle = bg;
+    ctx.fillRect(0,0,w,h);
+
+    const x1 = w * (0.25 + Math.sin(t * 0.9) * 0.12);
+    const y1 = h * (0.22 + Math.cos(t * 1.1) * 0.08);
+    const x2 = w * (0.76 + Math.cos(t * 1.2) * 0.10);
+    const y2 = h * (0.36 + Math.sin(t * 1.0) * 0.10);
+    const x3 = w * (0.48 + Math.sin(t * 0.7) * 0.14);
+    const y3 = h * (0.82 + Math.cos(t * 1.3) * 0.08);
+
+    const g1 = ctx.createRadialGradient(x1,y1,20,x1,y1,420);
+    g1.addColorStop(0, UI.color1);
+    g1.addColorStop(1, "transparent");
+
+    const g2 = ctx.createRadialGradient(x2,y2,20,x2,y2,460);
+    g2.addColorStop(0, UI.color2);
+    g2.addColorStop(1, "transparent");
+
+    const g3 = ctx.createRadialGradient(x3,y3,30,x3,y3,520);
+    g3.addColorStop(0, UI.color3);
+    g3.addColorStop(1, "transparent");
+
+    ctx.save();
+    ctx.filter = UI.blur ? "blur(95px)" : "blur(50px)";
+    ctx.fillStyle = g1; ctx.fillRect(0,0,w,h);
+    ctx.fillStyle = g2; ctx.fillRect(0,0,w,h);
+    ctx.fillStyle = g3; ctx.fillRect(0,0,w,h);
+    ctx.restore();
+
     t += UI.meshSpeed / 1200;
   }
-  canvas.__drawFrame = draw; draw(); return canvas;
+
+  canvas.__drawFrame = draw;
+  draw();
+  return canvas;
 }
 
 function createShowRow(row, i){
-  const d = document.createElement("div"); d.className = "show"; maybeAnimate(d, i, 0.03);
-  d.innerHTML = `<div class="day">${escapeHtml(getDay(row.Date))}</div><div class="title">${escapeHtml(row["Now Playing"] || "")}</div><div class="time">${UI.showTime ? escapeHtml(to12hr(row["A-B"])) : ""}</div>`;
-  d.addEventListener("click", () => selectRow(row)); return d;
+  const d = document.createElement("div");
+  d.className = "show";
+  maybeAnimate(d, i, 0.03);
+
+  d.innerHTML = `
+    <div class="day">${escapeHtml(getDay(row.Date))}</div>
+    <div class="title">${escapeHtml(row["Now Playing"] || "")}</div>
+    <div class="time">${UI.showTime ? escapeHtml(to12hr(row["A-B"])) : ""}</div>
+  `;
+
+  d.addEventListener("click", () => selectRow(row));
+  return d;
+}
+
+function getContentPadding(mode){
+  const extra = mode === "day" || mode === "tonight"
+    ? (UI.extraDayPadding ? 22 : 0)
+    : 0;
+
+  const safeTopWithBuffer = UI.safeTop + UI.innerBuffer + extra;
+  const safeBottomWithBuffer = UI.safeBottom + UI.innerBuffer + (UI.extraDayPadding && (mode === "day" || mode === "tonight") ? 18 : 0);
+  const safeSidesWithBuffer = UI.safeSides + UI.innerBuffer;
+
+  return {
+    top: Math.max(UI.padTop, safeTopWithBuffer),
+    bottom: Math.max(UI.padBottom, safeBottomWithBuffer),
+    sides: Math.max(UI.padSides, safeSidesWithBuffer)
+  };
+}
+
+function applyModeScale(node, mode){
+  let scale = 1;
+  if (mode === "month") scale = UI.monthScale / 100;
+  if (mode === "week") scale = UI.weekScale / 100;
+  if (mode === "lineup") scale = UI.lineupScale / 100;
+  if (mode === "day" || mode === "tonight") scale = UI.dayScale / 100;
+
+  if (scale !== 1){
+    node.style.transform = `scale(${scale})`;
+    node.style.transformOrigin = "top left";
+    node.style.width = `${100 / scale}%`;
+  }
+
+  return scale;
+}
+
+function autoFitBox(container, availableWidth, availableHeight, preferredScale = 1){
+  if (!UI.autoFit) return;
+
+  requestAnimationFrame(() => {
+    container.style.transform = `scale(${preferredScale})`;
+    container.style.transformOrigin = "top left";
+    container.style.width = `${100 / preferredScale}%`;
+
+    requestAnimationFrame(() => {
+      const measuredWidth = container.scrollWidth;
+      const measuredHeight = container.scrollHeight;
+
+      const scaleX = availableWidth / measuredWidth;
+      const scaleY = availableHeight / measuredHeight;
+      const fit = Math.min(scaleX, scaleY, 1);
+
+      const finalScale = preferredScale * fit;
+
+      container.style.transform = `scale(${finalScale})`;
+      container.style.transformOrigin = "top left";
+      container.style.width = `${100 / finalScale}%`;
+    });
+  });
 }
 
 function buildStoryNode({ mode = MODE, refDate = null, forExport = false } = {}){
@@ -371,77 +1142,176 @@ function buildStoryNode({ mode = MODE, refDate = null, forExport = false } = {})
   story.style.background = UI.transparent ? "transparent" : "#000";
 
   let meshCanvas = null;
-  if (UI.mesh){ meshCanvas = createMeshCanvas(); story.appendChild(meshCanvas); }
-  if (UI.overlay && !UI.transparent){ const overlay = document.createElement("div"); overlay.className = "story-overlay"; story.appendChild(overlay); }
+  if (UI.mesh){
+    meshCanvas = createMeshCanvas();
+    story.appendChild(meshCanvas);
+  }
 
-  const inner = document.createElement("div"); inner.className = "story-inner";
-  if (mode === "month" || mode === "week" || mode === "lineup") inner.classList.add("tight-safe");
-  if ((mode === "day" || mode === "tonight") && UI.extraDayPadding) inner.classList.add("relaxed-safe");
+  if (UI.overlay && !UI.transparent){
+    const overlay = document.createElement("div");
+    overlay.className = "story-overlay";
+    story.appendChild(overlay);
+  }
 
-  const label = document.createElement("div"); label.className = "story-label"; label.textContent = getLabelForMode(mode, refDate);
-  const content = document.createElement("div"); content.className = "story-content";
+  const contentPadding = getContentPadding(mode);
+
+  const inner = document.createElement("div");
+  inner.className = "story-inner";
+  inner.style.paddingTop = contentPadding.top + "px";
+  inner.style.paddingBottom = contentPadding.bottom + "px";
+  inner.style.paddingLeft = contentPadding.sides + "px";
+  inner.style.paddingRight = contentPadding.sides + "px";
+
+  const label = document.createElement("div");
+  label.className = "story-label";
+  label.textContent = getLabelForMode(mode, refDate);
+
+  const content = document.createElement("div");
+  content.className = "story-content";
+
   const rows = sortRows(getRowsForMode(mode, refDate));
 
   if (mode === "month"){
-    const grid = document.createElement("div"); grid.className = "columns month";
-    const col1 = document.createElement("div"); col1.className = "col";
-    const col2 = document.createElement("div"); col2.className = "col";
+    const grid = document.createElement("div");
+    grid.className = "columns month";
+
+    const col1 = document.createElement("div");
+    col1.className = "col";
+
+    const col2 = document.createElement("div");
+    col2.className = "col";
+
     const mid = Math.ceil(rows.length / 2);
     rows.slice(0, mid).forEach((row, i) => col1.appendChild(createShowRow(row, i)));
     rows.slice(mid).forEach((row, i) => col2.appendChild(createShowRow(row, i + mid)));
-    grid.appendChild(col1); grid.appendChild(col2); content.appendChild(grid);
+
+    grid.appendChild(col1);
+    grid.appendChild(col2);
+    content.appendChild(grid);
+
+    const baseScale = applyModeScale(grid, mode);
+    autoFitBox(grid, 1080 - (contentPadding.sides * 2), 1920 - contentPadding.top - contentPadding.bottom - 120, baseScale);
   }
 
   if (mode === "week"){
-    const grid = document.createElement("div"); grid.className = "columns week";
-    const needsTwoCols = rows.length > 10; if (needsTwoCols) grid.classList.add("two-col");
-    const col1 = document.createElement("div"); col1.className = "col";
-    const col2 = document.createElement("div"); col2.className = "col";
+    const grid = document.createElement("div");
+    grid.className = "columns week";
+
+    const needsTwoCols = rows.length > 10;
+    if (needsTwoCols) grid.classList.add("two-col");
+
+    const col1 = document.createElement("div");
+    col1.className = "col";
+
+    const col2 = document.createElement("div");
+    col2.className = "col";
+
     if (needsTwoCols){
       const mid = Math.ceil(rows.length / 2);
       rows.slice(0, mid).forEach((row, i) => col1.appendChild(createShowRow(row, i)));
       rows.slice(mid).forEach((row, i) => col2.appendChild(createShowRow(row, i + mid)));
-      grid.appendChild(col1); grid.appendChild(col2);
+      grid.appendChild(col1);
+      grid.appendChild(col2);
     } else {
       rows.forEach((row, i) => col1.appendChild(createShowRow(row, i)));
       grid.appendChild(col1);
     }
+
     content.appendChild(grid);
+
+    const baseScale = applyModeScale(grid, mode);
+    autoFitBox(grid, 1080 - (contentPadding.sides * 2), 1920 - contentPadding.top - contentPadding.bottom - 120, baseScale);
   }
 
   if (mode === "day" || mode === "tonight"){
-    const wrap = document.createElement("div"); wrap.className = "day-stack"; wrap.style.transform = `scale(${UI.dayScale / 100})`; wrap.style.transformOrigin = "top left"; wrap.style.width = `${100 / (UI.dayScale / 100)}%`;
+    const wrap = document.createElement("div");
+    wrap.className = "day-stack";
+
     if (!rows.length){
-      const empty = document.createElement("div"); empty.className = "day-card"; empty.style.animation = "none"; empty.style.opacity = "1"; empty.style.transform = "none";
-      empty.innerHTML = `<div class="day-kicker">NO SHOWS</div><div class="day-title">Nothing scheduled.</div>`; wrap.appendChild(empty);
+      const empty = document.createElement("div");
+      empty.className = "day-card";
+      empty.style.animation = "none";
+      empty.style.opacity = "1";
+      empty.style.transform = "none";
+      empty.innerHTML = `
+        <div class="day-kicker">NO SHOWS</div>
+        <div class="day-title">Nothing scheduled.</div>
+      `;
+      wrap.appendChild(empty);
     } else {
       rows.forEach((row, i) => {
-        const card = document.createElement("div"); card.className = mode === "tonight" ? "tonight-card" : "day-card"; if (row.featured) card.classList.add("featured"); maybeAnimate(card, i, 0.12);
-        const genres = UI.showGenre ? (row.Genre || "") : ""; const time = UI.showTime ? to12hr(row["A-B"]) : "";
-        card.innerHTML = `<div class="day-kicker">${escapeHtml(getDay(row.Date))}</div><div class="day-title">${escapeHtml(buildDayTitle(row))}</div>${genres ? `<div class="day-genre">${escapeHtml(genres)}</div>` : ``}${time ? `<div class="day-time">${escapeHtml(time)}</div>` : ``}`;
-        card.addEventListener("click", () => selectRow(row)); wrap.appendChild(card);
+        const card = document.createElement("div");
+        card.className = mode === "tonight" ? "tonight-card" : "day-card";
+        if (row.featured) card.classList.add("featured");
+        maybeAnimate(card, i, 0.12);
+
+        const genres = UI.showGenre ? (row.Genre || "") : "";
+        const time = UI.showTime ? to12hr(row["A-B"]) : "";
+
+        card.innerHTML = `
+          <div class="day-kicker">${escapeHtml(getDay(row.Date))}</div>
+          <div class="day-title">${escapeHtml(buildDayTitle(row))}</div>
+          ${genres ? `<div class="day-genre">${escapeHtml(genres)}</div>` : ``}
+          ${time ? `<div class="day-time">${escapeHtml(time)}</div>` : ``}
+        `;
+
+        card.addEventListener("click", () => selectRow(row));
+        wrap.appendChild(card);
       });
     }
+
     content.appendChild(wrap);
+
+    const baseScale = applyModeScale(wrap, mode);
+    autoFitBox(wrap, 1080 - (contentPadding.sides * 2), 1920 - contentPadding.top - contentPadding.bottom - 120, baseScale);
   }
 
   if (mode === "lineup"){
-    const wrap = document.createElement("div"); wrap.className = "lineup-stack";
+    const wrap = document.createElement("div");
+    wrap.className = "lineup-stack";
+
     rows.forEach((row, i) => {
-      const item = document.createElement("div"); item.className = "lineup-item"; maybeAnimate(item, i, 0.03);
-      const sub = UI.showGuests && buildDjLine(row) ? `<div class="lineup-sub">${escapeHtml(buildDjLine(row))}</div>` : "";
-      item.innerHTML = `<div>${escapeHtml(row["Now Playing"] || "")}</div>${sub}`; item.addEventListener("click", () => selectRow(row)); wrap.appendChild(item);
+      const item = document.createElement("div");
+      item.className = "lineup-item";
+      maybeAnimate(item, i, 0.03);
+
+      const sub = UI.showGuests && buildDjLine(row)
+        ? `<div class="lineup-sub">${escapeHtml(buildDjLine(row))}</div>`
+        : "";
+
+      item.innerHTML = `<div>${escapeHtml(row["Now Playing"] || "")}</div>${sub}`;
+      item.addEventListener("click", () => selectRow(row));
+      wrap.appendChild(item);
     });
+
     content.appendChild(wrap);
+
+    const baseScale = applyModeScale(wrap, mode);
+    autoFitBox(wrap, 1080 - (contentPadding.sides * 2), 1920 - contentPadding.top - contentPadding.bottom - 120, baseScale);
   }
 
-  inner.appendChild(label); inner.appendChild(content); story.appendChild(inner);
+  inner.appendChild(label);
+  inner.appendChild(content);
+  story.appendChild(inner);
 
   if (UI.showSafeZone){
-    const guide = document.createElement("div"); guide.className = "safe-zone-guide";
-    if (mode === "month" || mode === "week" || mode === "lineup"){ guide.style.top = "110px"; guide.style.bottom = "150px"; }
-    if ((mode === "day" || mode === "tonight") && UI.extraDayPadding){ guide.style.top = "160px"; guide.style.bottom = "220px"; }
+    const guide = document.createElement("div");
+    guide.className = "safe-zone-guide";
+    guide.style.top = UI.safeTop + "px";
+    guide.style.bottom = UI.safeBottom + "px";
+    guide.style.left = UI.safeSides + "px";
+    guide.style.right = UI.safeSides + "px";
     story.appendChild(guide);
+  }
+
+  if (UI.showContentBox){
+    const box = document.createElement("div");
+    box.className = "content-box-guide";
+    box.style.top = contentPadding.top + "px";
+    box.style.bottom = contentPadding.bottom + "px";
+    box.style.left = contentPadding.sides + "px";
+    box.style.right = contentPadding.sides + "px";
+    story.appendChild(box);
   }
 
   if (meshCanvas) story.__meshCanvas = meshCanvas;
@@ -451,21 +1321,29 @@ function buildStoryNode({ mode = MODE, refDate = null, forExport = false } = {})
 function updatePreview(){
   const viewport = document.getElementById("previewViewport");
   const frame = document.getElementById("previewFrame");
+
+  viewport.style.opacity = "0";
   viewport.innerHTML = "";
   viewport.appendChild(buildStoryNode());
+
   requestAnimationFrame(() => {
     const frameWidth = frame.clientWidth;
-    const frameHeight = frame.clientHeight;
-    const scaleX = frameWidth / 1080;
-    const scaleY = frameHeight / 1920;
-    const scale = Math.min(scaleX, scaleY);
+    const scale = frameWidth / 1080;
     viewport.style.transform = `scale(${scale})`;
     viewport.style.width = "1080px";
     viewport.style.height = "1920px";
+    requestAnimationFrame(() => {
+      viewport.style.opacity = "1";
+    });
   });
 }
 
-function render(){ document.querySelectorAll("#modeSeg button").forEach(btn => btn.classList.toggle("active", btn.dataset.mode === MODE)); updatePreview(); }
+function render(){
+  document.querySelectorAll("#modeSeg button").forEach(btn => {
+    btn.classList.toggle("active", btn.dataset.mode === MODE);
+  });
+  updatePreview();
+}
 
 function populateEditor(row){
   document.getElementById("selectedInfo").innerHTML = `<strong>${escapeHtml(row["Now Playing"] || "Untitled")}</strong><br>${escapeHtml(row.Date || "")} · ${escapeHtml(row["A-B"] || "")}`;
@@ -482,7 +1360,11 @@ function populateEditor(row){
 }
 
 function saveCurrentEdit(){
-  if (!SELECTED_ID){ alert("Click a row or card in the preview first."); return; }
+  if (!SELECTED_ID){
+    alert("Click a row or card in the preview first.");
+    return;
+  }
+
   OVERRIDES[SELECTED_ID] = {
     "Now Playing": document.getElementById("editTitle").value.trim(),
     DJ: document.getElementById("editDJ").value.trim(),
@@ -495,22 +1377,34 @@ function saveCurrentEdit(){
     featured: document.getElementById("editFeatured").checked,
     hidden: document.getElementById("editHidden").checked
   };
-  saveOverrides(); render();
+
+  saveOverrides();
+  render();
 }
 
 function clearCurrentEdit(){
-  if (!SELECTED_ID){ alert("No selected item."); return; }
-  delete OVERRIDES[SELECTED_ID]; saveOverrides();
+  if (!SELECTED_ID){
+    alert("No selected item.");
+    return;
+  }
+
+  delete OVERRIDES[SELECTED_ID];
+  saveOverrides();
+
   const base = ALL_ROWS.find(r => getRowId(r) === SELECTED_ID);
   if (base) populateEditor(applyOverrides(base));
   else document.getElementById("selectedInfo").textContent = "Click a row or card in the preview to edit it.";
+
   render();
 }
 
 function resetAllOverrides(){
   if (!confirm("Reset all local overrides?")) return;
-  OVERRIDES = {}; saveOverrides(); SELECTED_ID = null;
-  document.getElementById("selectedInfo").textContent = "Click a row or card in the preview to edit it."; render();
+  OVERRIDES = {};
+  saveOverrides();
+  SELECTED_ID = null;
+  document.getElementById("selectedInfo").textContent = "Click a row or card in the preview to edit it.";
+  render();
 }
 
 function syncControlsToUI(){
@@ -519,55 +1413,140 @@ function syncControlsToUI(){
   document.getElementById("showTimeToggle").checked = UI.showTime;
   document.getElementById("showGenreToggle").checked = UI.showGenre;
   document.getElementById("showGuestsToggle").checked = UI.showGuests;
+  document.getElementById("autoFitToggle").checked = UI.autoFit;
+
   document.getElementById("monthLabelInput").value = UI.monthLabelOverride || "";
+
   document.getElementById("dayScaleRange").value = UI.dayScale;
   document.getElementById("dayScaleValue").textContent = `${UI.dayScale}%`;
+
+  document.getElementById("monthScaleRange").value = UI.monthScale;
+  document.getElementById("monthScaleValue").textContent = `${UI.monthScale}%`;
+
+  document.getElementById("weekScaleRange").value = UI.weekScale;
+  document.getElementById("weekScaleValue").textContent = `${UI.weekScale}%`;
+
+  document.getElementById("lineupScaleRange").value = UI.lineupScale;
+  document.getElementById("lineupScaleValue").textContent = `${UI.lineupScale}%`;
+
   document.getElementById("meshToggle").checked = UI.mesh;
   document.getElementById("blurToggle").checked = UI.blur;
   document.getElementById("overlayToggle").checked = UI.overlay;
+
   document.getElementById("color1").value = UI.color1;
   document.getElementById("color2").value = UI.color2;
   document.getElementById("color3").value = UI.color3;
   document.getElementById("color4").value = UI.color4;
+
   document.getElementById("meshSpeedRange").value = UI.meshSpeed;
   document.getElementById("meshSpeedValue").textContent = String(UI.meshSpeed);
+
   document.getElementById("safeZoneToggle").checked = UI.showSafeZone;
+  document.getElementById("contentBoxToggle").checked = UI.showContentBox;
   document.getElementById("extraDayPaddingToggle").checked = UI.extraDayPadding;
+
+  [["safeTop","safeTopVal"],["safeBottom","safeBottomVal"],["safeSides","safeSidesVal"],["padTop","padTopVal"],["padBottom","padBottomVal"],["padSides","padSidesVal"],["innerBuffer","innerBufferVal"]].forEach(([id,valId]) => {
+    document.getElementById(id).value = UI[id];
+    document.getElementById(valId).textContent = UI[id];
+  });
 }
 
-function setMode(mode){ MODE = mode; render(); }
-function shiftPeriod(dir){
-  if (MODE === "month" || MODE === "lineup") currentMonthDate = new Date(currentMonthDate.getFullYear(), currentMonthDate.getMonth() + dir, 1);
-  else if (MODE === "week") { currentWeekDate = new Date(currentWeekDate); currentWeekDate.setDate(currentWeekDate.getDate() + (7 * dir)); }
-  else if (MODE === "day") { currentDayDate = new Date(currentDayDate); currentDayDate.setDate(currentDayDate.getDate() + dir); }
+function setMode(mode){
+  MODE = mode;
   render();
 }
-function resetToday(){ const now = new Date(); currentMonthDate = new Date(now.getFullYear(), now.getMonth(), 1); currentWeekDate = new Date(now); currentDayDate = new Date(now); render(); }
+
+function shiftPeriod(dir){
+  if (MODE === "month" || MODE === "lineup"){
+    currentMonthDate = new Date(currentMonthDate.getFullYear(), currentMonthDate.getMonth() + dir, 1);
+  } else if (MODE === "week") {
+    currentWeekDate = new Date(currentWeekDate);
+    currentWeekDate.setDate(currentWeekDate.getDate() + (7 * dir));
+  } else if (MODE === "day") {
+    currentDayDate = new Date(currentDayDate);
+    currentDayDate.setDate(currentDayDate.getDate() + dir);
+  }
+  render();
+}
+
+function resetToday(){
+  const now = new Date();
+  currentMonthDate = new Date(now.getFullYear(), now.getMonth(), 1);
+  currentWeekDate = new Date(now);
+  currentDayDate = new Date(now);
+  render();
+}
 
 function toggleLoop(){
   const btn = document.getElementById("loopBtn");
-  if (LOOPING){ LOOPING = false; clearInterval(loopTimer); loopTimer = null; btn.textContent = "START LOOP"; return; }
-  LOOPING = true; btn.textContent = "STOP LOOP";
-  const sequence = [() => setMode("month"), () => setMode("week"), () => setMode("day"), () => shiftPeriod(1), () => setMode("tonight"), () => setMode("lineup")];
-  let step = 0; sequence[step]();
-  loopTimer = setInterval(() => { step = (step + 1) % sequence.length; sequence[step](); }, 4500);
+
+  if (LOOPING){
+    LOOPING = false;
+    clearInterval(loopTimer);
+    loopTimer = null;
+    btn.textContent = "START LOOP";
+    return;
+  }
+
+  LOOPING = true;
+  btn.textContent = "STOP LOOP";
+
+  const sequence = [
+    () => setMode("month"),
+    () => setMode("week"),
+    () => setMode("day"),
+    () => shiftPeriod(1),
+    () => setMode("tonight"),
+    () => setMode("lineup")
+  ];
+
+  let step = 0;
+  sequence[step]();
+
+  loopTimer = setInterval(() => {
+    step = (step + 1) % sequence.length;
+    sequence[step]();
+  }, 4500);
 }
 
 async function captureStoryNode(storyNode, forceTransparent = false){
-  const stage = document.getElementById("exportStage"); stage.innerHTML = "";
+  const stage = document.getElementById("exportStage");
+  stage.innerHTML = "";
+
   if (forceTransparent) storyNode.style.background = "transparent";
   stage.appendChild(storyNode);
-  if (storyNode.__meshCanvas && storyNode.__meshCanvas.__drawFrame) storyNode.__meshCanvas.__drawFrame();
-  if (document.fonts && document.fonts.ready){ try { await document.fonts.ready; } catch {} }
+
+  if (storyNode.__meshCanvas && storyNode.__meshCanvas.__drawFrame){
+    storyNode.__meshCanvas.__drawFrame();
+  }
+
+  if (document.fonts && document.fonts.ready){
+    try { await document.fonts.ready; } catch {}
+  }
+
   await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
-  return await html2canvas(storyNode, { backgroundColor: forceTransparent || UI.transparent ? null : "#000", scale: 1, width: 1080, height: 1920, useCORS: true });
+
+  return await html2canvas(storyNode, {
+    backgroundColor: forceTransparent || UI.transparent ? null : "#000",
+    scale: 1,
+    width: 1080,
+    height: 1920,
+    useCORS: true
+  });
 }
 
-function slugify(s){ return String(s || "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 80); }
+function slugify(s){
+  return String(s || "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 80);
+}
 
 async function exportCurrentPNG(forceTransparent = false){
   const storyNode = buildStoryNode({ mode: MODE, forExport: true });
   const canvas = await captureStoryNode(storyNode, forceTransparent);
+
   const link = document.createElement("a");
   const suffix = forceTransparent ? "alpha" : "png";
   link.download = `mesh-${MODE}-${slugify(getLabelForMode(MODE))}-${suffix}.png`;
@@ -576,19 +1555,46 @@ async function exportCurrentPNG(forceTransparent = false){
 }
 
 function getWeekStartsForMonth(date){
-  const rows = sortRows(getRowsForMode("month", date)); const seen = new Set(); const starts = [];
-  rows.forEach(r => { const d = parseLocalDate(r.Date); const start = new Date(d); const day = start.getDay(); const diff = (day + 6) % 7; start.setDate(start.getDate() - diff); start.setHours(0,0,0,0); const key = start.toISOString().slice(0,10); if (!seen.has(key)){ seen.add(key); starts.push(start); } });
+  const rows = sortRows(getRowsForMode("month", date));
+  const seen = new Set();
+  const starts = [];
+
+  rows.forEach(r => {
+    const d = parseLocalDate(r.Date);
+    const start = new Date(d);
+    const day = start.getDay();
+    const diff = (day + 6) % 7;
+    start.setDate(start.getDate() - diff);
+    start.setHours(0,0,0,0);
+    const key = start.toISOString().slice(0,10);
+    if (!seen.has(key)){
+      seen.add(key);
+      starts.push(start);
+    }
+  });
+
   return starts.sort((a,b) => a - b);
 }
 
 function getDaysForMonth(date){
-  const rows = sortRows(getRowsForMode("month", date)); const seen = new Set(); const days = [];
-  rows.forEach(r => { if (!seen.has(r.Date)){ seen.add(r.Date); days.push(parseLocalDate(r.Date)); } });
+  const rows = sortRows(getRowsForMode("month", date));
+  const seen = new Set();
+  const days = [];
+
+  rows.forEach(r => {
+    if (!seen.has(r.Date)){
+      seen.add(r.Date);
+      days.push(parseLocalDate(r.Date));
+    }
+  });
+
   return days.sort((a,b) => a - b);
 }
 
 async function exportPackZIP(){
-  const zip = new JSZip(); const monthDate = new Date(currentMonthDate);
+  const zip = new JSZip();
+  const monthDate = new Date(currentMonthDate);
+
   let node = buildStoryNode({ mode:"month", refDate:monthDate, forExport:true });
   let canvas = await captureStoryNode(node, false);
   zip.file(`01-month-${slugify(getLabelForMode("month", monthDate))}.png`, canvas.toDataURL("image/png").split(",")[1], {base64:true});
@@ -616,46 +1622,190 @@ async function exportPackZIP(){
   zip.file(`05-tonight.png`, canvas.toDataURL("image/png").split(",")[1], {base64:true});
 
   const blob = await zip.generateAsync({ type:"blob" });
-  const link = document.createElement("a"); link.href = URL.createObjectURL(blob); link.download = `mesh-content-pack-${slugify(getLabelForMode("month", monthDate))}.zip`; link.click(); setTimeout(() => URL.revokeObjectURL(link.href), 2000);
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = `mesh-content-pack-${slugify(getLabelForMode("month", monthDate))}.zip`;
+  link.click();
+  setTimeout(() => URL.revokeObjectURL(link.href), 2000);
 }
 
 async function exportVideo(){
-  const canvas = document.createElement("canvas"); canvas.width = 1080; canvas.height = 1920; const ctx = canvas.getContext("2d");
-  const stream = canvas.captureStream(30); const mimeTypes = ["video/webm;codecs=vp9","video/webm;codecs=vp8","video/webm"]; const chosen = mimeTypes.find(t => MediaRecorder.isTypeSupported(t)) || "video/webm";
-  const recorder = new MediaRecorder(stream, { mimeType: chosen }); const chunks = [];
-  recorder.ondataavailable = e => { if (e.data.size) chunks.push(e.data); };
-  recorder.onstop = () => { const blob = new Blob(chunks, { type: chosen }); const url = URL.createObjectURL(blob); const a = document.createElement("a"); a.href = url; a.download = `mesh-${MODE}-loop.webm`; a.click(); setTimeout(() => URL.revokeObjectURL(url), 2000); };
+  const canvas = document.createElement("canvas");
+  canvas.width = 1080;
+  canvas.height = 1920;
+  const ctx = canvas.getContext("2d");
+
+  const stream = canvas.captureStream(30);
+  const mimeTypes = ["video/webm;codecs=vp9","video/webm;codecs=vp8","video/webm"];
+  const chosen = mimeTypes.find(t => MediaRecorder.isTypeSupported(t)) || "video/webm";
+
+  const recorder = new MediaRecorder(stream, { mimeType: chosen });
+  const chunks = [];
+
+  recorder.ondataavailable = e => {
+    if (e.data.size) chunks.push(e.data);
+  };
+
+  recorder.onstop = () => {
+    const blob = new Blob(chunks, { type: chosen });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `mesh-${MODE}-loop.webm`;
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 2000);
+  };
+
   recorder.start();
-  const seq = [{ mode:"month", hold:1200 },{ mode:"week", hold:1200 },{ mode:"day", hold:1200 },{ mode:"tonight", hold:1400 },{ mode:"lineup", hold:1200 }];
+
+  const seq = [
+    { mode:"month", hold:1200 },
+    { mode:"week", hold:1200 },
+    { mode:"day", hold:1200 },
+    { mode:"tonight", hold:1400 },
+    { mode:"lineup", hold:1200 }
+  ];
+
   for (const step of seq){
     const node = buildStoryNode({ mode: step.mode, forExport: true });
     const shot = await captureStoryNode(node, false);
     const start = performance.now();
+
     while (performance.now() - start < step.hold){
       ctx.clearRect(0,0,1080,1920);
-      if (!UI.transparent){ ctx.fillStyle = "#000"; ctx.fillRect(0,0,1080,1920); }
+      if (!UI.transparent){
+        ctx.fillStyle = "#000";
+        ctx.fillRect(0,0,1080,1920);
+      }
       ctx.drawImage(shot,0,0);
       await new Promise(r => requestAnimationFrame(r));
     }
   }
+
   recorder.stop();
 }
 
-function bindUICheckbox(id, key){ document.getElementById(id).addEventListener("change", e => { UI[key] = e.target.checked; saveUIState(); render(); }); }
+function setPaddingPreset(type){
+  if (type === "tight"){
+    UI.safeTop = 120;
+    UI.safeBottom = 150;
+    UI.safeSides = 32;
+    UI.padTop = 150;
+    UI.padBottom = 200;
+    UI.padSides = 48;
+    UI.innerBuffer = 10;
+  }
 
-document.getElementById("modeSeg").addEventListener("click", e => { const btn = e.target.closest("button[data-mode]"); if (!btn) return; setMode(btn.dataset.mode); });
+  if (type === "balanced"){
+    UI.safeTop = 140;
+    UI.safeBottom = 180;
+    UI.safeSides = 40;
+    UI.padTop = 180;
+    UI.padBottom = 250;
+    UI.padSides = 78;
+    UI.innerBuffer = 24;
+  }
+
+  if (type === "safe"){
+    UI.safeTop = 160;
+    UI.safeBottom = 240;
+    UI.safeSides = 52;
+    UI.padTop = 220;
+    UI.padBottom = 300;
+    UI.padSides = 96;
+    UI.innerBuffer = 34;
+  }
+
+  saveUIState();
+  syncControlsToUI();
+  render();
+}
+
+function bindUICheckbox(id, key){
+  document.getElementById(id).addEventListener("change", e => {
+    UI[key] = e.target.checked;
+    saveUIState();
+    render();
+  });
+}
+
+function bindRangeNumber(id, valueId, key, suffix = ""){
+  document.getElementById(id).addEventListener("input", e => {
+    UI[key] = Number(e.target.value);
+    document.getElementById(valueId).textContent = `${UI[key]}${suffix}`;
+    saveUIState();
+    render();
+  });
+}
+
+document.getElementById("modeSeg").addEventListener("click", e => {
+  const btn = e.target.closest("button[data-mode]");
+  if (!btn) return;
+  setMode(btn.dataset.mode);
+});
+
 document.getElementById("prevBtn").addEventListener("click", () => shiftPeriod(-1));
 document.getElementById("todayBtn").addEventListener("click", resetToday);
 document.getElementById("nextBtn").addEventListener("click", () => shiftPeriod(1));
 document.getElementById("loopBtn").addEventListener("click", toggleLoop);
 
-document.getElementById("pngBtn").addEventListener("click", async () => { try{ await exportCurrentPNG(false); } catch(err){ console.error(err); alert("PNG export failed. Check console for details."); } });
-document.getElementById("transparentPngBtn").addEventListener("click", async () => { try{ await exportCurrentPNG(true); } catch(err){ console.error(err); alert("Transparent PNG export failed. Check console for details."); } });
-document.getElementById("packBtn").addEventListener("click", async () => { const btn = document.getElementById("packBtn"); const prev = btn.textContent; try{ btn.textContent = "BUILDING ZIP..."; btn.disabled = true; await exportPackZIP(); } catch(err){ console.error(err); alert("Pack export failed. Check console for details."); } finally{ btn.textContent = prev; btn.disabled = false; } });
-document.getElementById("videoBtn").addEventListener("click", async () => { const btn = document.getElementById("videoBtn"); const prev = btn.textContent; try{ btn.textContent = "RENDERING..."; btn.disabled = true; await exportVideo(); } catch(err){ console.error(err); alert("Video export failed. Your browser may not support MediaRecorder WEBM export."); } finally{ btn.textContent = prev; btn.disabled = false; } });
+document.getElementById("pngBtn").addEventListener("click", async () => {
+  try{
+    await exportCurrentPNG(false);
+  } catch(err){
+    console.error(err);
+    alert("PNG export failed. Check console for details.");
+  }
+});
+
+document.getElementById("transparentPngBtn").addEventListener("click", async () => {
+  try{
+    await exportCurrentPNG(true);
+  } catch(err){
+    console.error(err);
+    alert("Transparent PNG export failed. Check console for details.");
+  }
+});
+
+document.getElementById("packBtn").addEventListener("click", async () => {
+  const btn = document.getElementById("packBtn");
+  const prev = btn.textContent;
+  try{
+    btn.textContent = "BUILDING ZIP...";
+    btn.disabled = true;
+    await exportPackZIP();
+  } catch(err){
+    console.error(err);
+    alert("Pack export failed. Check console for details.");
+  } finally{
+    btn.textContent = prev;
+    btn.disabled = false;
+  }
+});
+
+document.getElementById("videoBtn").addEventListener("click", async () => {
+  const btn = document.getElementById("videoBtn");
+  const prev = btn.textContent;
+  try{
+    btn.textContent = "RENDERING...";
+    btn.disabled = true;
+    await exportVideo();
+  } catch(err){
+    console.error(err);
+    alert("Video export failed. Your browser may not support MediaRecorder WEBM export.");
+  } finally{
+    btn.textContent = prev;
+    btn.disabled = false;
+  }
+});
+
 document.getElementById("saveEditBtn").addEventListener("click", saveCurrentEdit);
 document.getElementById("clearEditBtn").addEventListener("click", clearCurrentEdit);
 document.getElementById("resetOverridesBtn").addEventListener("click", resetAllOverrides);
+
+document.getElementById("presetTightBtn").addEventListener("click", () => setPaddingPreset("tight"));
+document.getElementById("presetBalancedBtn").addEventListener("click", () => setPaddingPreset("balanced"));
+document.getElementById("presetSafeBtn").addEventListener("click", () => setPaddingPreset("safe"));
 
 bindUICheckbox("transparentToggle", "transparent");
 bindUICheckbox("animateToggle", "animate");
@@ -666,20 +1816,57 @@ bindUICheckbox("meshToggle", "mesh");
 bindUICheckbox("blurToggle", "blur");
 bindUICheckbox("overlayToggle", "overlay");
 bindUICheckbox("safeZoneToggle", "showSafeZone");
+bindUICheckbox("contentBoxToggle", "showContentBox");
 bindUICheckbox("extraDayPaddingToggle", "extraDayPadding");
+bindUICheckbox("autoFitToggle", "autoFit");
 
-document.getElementById("monthLabelInput").addEventListener("input", e => { UI.monthLabelOverride = e.target.value; saveUIState(); render(); });
-document.getElementById("dayScaleRange").addEventListener("input", e => { UI.dayScale = Number(e.target.value); document.getElementById("dayScaleValue").textContent = `${UI.dayScale}%`; saveUIState(); render(); });
-document.getElementById("meshSpeedRange").addEventListener("input", e => { UI.meshSpeed = Number(e.target.value); document.getElementById("meshSpeedValue").textContent = String(UI.meshSpeed); saveUIState(); render(); });
-["color1","color2","color3","color4"].forEach(id => { document.getElementById(id).addEventListener("input", e => { UI[id] = e.target.value; saveUIState(); render(); }); });
+document.getElementById("monthLabelInput").addEventListener("input", e => {
+  UI.monthLabelOverride = e.target.value;
+  saveUIState();
+  render();
+});
+
+bindRangeNumber("dayScaleRange", "dayScaleValue", "dayScale", "%");
+bindRangeNumber("monthScaleRange", "monthScaleValue", "monthScale", "%");
+bindRangeNumber("weekScaleRange", "weekScaleValue", "weekScale", "%");
+bindRangeNumber("lineupScaleRange", "lineupScaleValue", "lineupScale", "%");
+
+bindRangeNumber("meshSpeedRange", "meshSpeedValue", "meshSpeed", "");
+bindRangeNumber("safeTop", "safeTopVal", "safeTop", "");
+bindRangeNumber("safeBottom", "safeBottomVal", "safeBottom", "");
+bindRangeNumber("safeSides", "safeSidesVal", "safeSides", "");
+bindRangeNumber("padTop", "padTopVal", "padTop", "");
+bindRangeNumber("padBottom", "padBottomVal", "padBottom", "");
+bindRangeNumber("padSides", "padSidesVal", "padSides", "");
+bindRangeNumber("innerBuffer", "innerBufferVal", "innerBuffer", "");
+
+["color1","color2","color3","color4"].forEach(id => {
+  document.getElementById(id).addEventListener("input", e => {
+    UI[id] = e.target.value;
+    saveUIState();
+    render();
+  });
+});
+
 window.addEventListener("resize", updatePreview);
 
 Papa.parse(CSV_URL, {
   download:true,
   header:true,
   complete(res){
-    ALL_ROWS = (res.data || []).filter(r => r.Date && r["Now Playing"]).map(r => { const row = clone(r); row.__baseId = getRowId(r); return row; }).sort((a,b) => parseLocalDate(a.Date) - parseLocalDate(b.Date));
-    syncControlsToUI(); resetToday(); currentMonthDate = new Date(2026, 3, 1); setMode("month");
+    ALL_ROWS = (res.data || [])
+      .filter(r => r.Date && r["Now Playing"])
+      .map(r => {
+        const row = clone(r);
+        row.__baseId = getRowId(r);
+        return row;
+      })
+      .sort((a,b) => parseLocalDate(a.Date) - parseLocalDate(b.Date));
+
+    syncControlsToUI();
+    resetToday();
+    currentMonthDate = new Date(2026, 3, 1);
+    setMode("month");
   }
 });
 </script>
