@@ -731,7 +731,7 @@ let MODE = "month";
 let LOOPING = false;
 let loopTimer = null;
 let SELECTED_ID = null;
-let currentMonthDate = new Date(2026, 3, 1);
+let currentMonthDate = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
 let currentWeekDate = new Date();
 let currentDayDate = new Date();
 
@@ -851,6 +851,14 @@ function getDay(dateStr){
 
 function formatMonthYear(date){
   return date.toLocaleDateString("en-GB", { month:"long", year:"numeric" }).toUpperCase();
+}
+
+function clearStaleDefaultMonthLabel(){
+  const override = UI.monthLabelOverride?.trim().toUpperCase();
+  if (override === "APRIL 2026" && formatMonthYear(currentMonthDate) !== "APRIL 2026"){
+    UI.monthLabelOverride = "";
+    saveUIState();
+  }
 }
 
 function formatWeekLabel(start, end){
@@ -1865,7 +1873,8 @@ Papa.parse(CSV_URL, {
 
     syncControlsToUI();
     resetToday();
-    currentMonthDate = new Date(2026, 3, 1);
+    clearStaleDefaultMonthLabel();
+    syncControlsToUI();
     setMode("month");
   }
 });
