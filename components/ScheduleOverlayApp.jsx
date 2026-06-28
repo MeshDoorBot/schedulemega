@@ -116,17 +116,6 @@ export default function ScheduleOverlayApp() {
     const BACKGROUND_VIDEO_URL = "/schedule-background.mp4";
     const STORAGE_KEY = "mesh_schedule_overrides_v5";
     const UI_KEY = "mesh_schedule_ui_v5";
-    
-    let ALL_ROWS = [];
-    let OVERRIDES = loadOverrides();
-    let UI = loadUIState();
-    let MODE = "month";
-    let LOOPING = false;
-    let loopTimer = null;
-    let SELECTED_ID = null;
-    let currentMonthDate = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
-    let currentWeekDate = new Date();
-    let currentDayDate = new Date();
     const LOCKED_LAYOUT = {
       showTime:true,
       showGenre:true,
@@ -148,6 +137,17 @@ export default function ScheduleOverlayApp() {
       padSides:78,
       innerBuffer:24
     };
+    
+    let ALL_ROWS = [];
+    let OVERRIDES = loadOverrides();
+    let UI = loadUIState();
+    let MODE = "month";
+    let LOOPING = false;
+    let loopTimer = null;
+    let SELECTED_ID = null;
+    let currentMonthDate = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+    let currentWeekDate = new Date();
+    let currentDayDate = new Date();
     
     function loadOverrides(){
       try{ return JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}"); }
