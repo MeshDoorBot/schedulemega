@@ -1,0 +1,32 @@
+{
+  "name": "schedulemega",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MeshDoorBot/schedulemega.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/MeshDoorBot/schedulemega/issues"
+  },
+  "homepage": "https://github.com/MeshDoorBot/schedulemega#readme",
+  "description": "",
+  "dependencies": {
+    "html2canvas": "^1.4.1",
+    "jszip": "^3.10.1",
+    "next": "^16.2.9",
+    "papaparse": "^5.5.4",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7"
+  },
+  "overrides": {
+    "postcss": "^8.5.16"
+  }
+}

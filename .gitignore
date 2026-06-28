@@ -1,0 +1,8 @@
+.next
+node_modules
+out
+.env*.local
+*.log
+*.mp4
+*.mov
+*.webm
