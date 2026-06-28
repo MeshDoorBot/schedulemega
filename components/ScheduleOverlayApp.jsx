@@ -65,98 +65,6 @@ const CONTROL_MARKUP = `<div class="panel">
     </div>
 
     <div class="section">
-      <h3>Guides / Safe Zones</h3>
-      <label><input type="checkbox" id="safeZoneToggle"> Show IG safe zone guide</label>
-      <label><input type="checkbox" id="contentBoxToggle"> Show content box guide</label>
-      <label><input type="checkbox" id="extraDayPaddingToggle" checked> Extra padding for day / tonight</label>
-
-      <div class="range-line">
-        <span class="small">Safe top</span>
-        <input type="range" id="safeTop" min="40" max="400" value="140">
-        <span class="small" id="safeTopVal">140</span>
-      </div>
-      <div class="range-line">
-        <span class="small">Safe bottom</span>
-        <input type="range" id="safeBottom" min="40" max="500" value="180">
-        <span class="small" id="safeBottomVal">180</span>
-      </div>
-      <div class="range-line">
-        <span class="small">Safe sides</span>
-        <input type="range" id="safeSides" min="20" max="180" value="40">
-        <span class="small" id="safeSidesVal">40</span>
-      </div>
-
-      <div class="small">Safe zone is now separate from the actual content print area.</div>
-    </div>
-
-    <div class="section">
-      <h3>Content Box Control</h3>
-
-      <div class="mini-preset-grid">
-        <button id="presetTightBtn" class="subtle">TIGHT</button>
-        <button id="presetBalancedBtn">BALANCED</button>
-        <button id="presetSafeBtn">IG SAFE</button>
-      </div>
-
-      <div class="range-line" style="margin-top:10px;">
-        <span class="small">Top</span>
-        <input type="range" id="padTop" min="40" max="450" value="180">
-        <span class="small" id="padTopVal">180</span>
-      </div>
-      <div class="range-line">
-        <span class="small">Bottom</span>
-        <input type="range" id="padBottom" min="40" max="500" value="250">
-        <span class="small" id="padBottomVal">250</span>
-      </div>
-      <div class="range-line">
-        <span class="small">Sides</span>
-        <input type="range" id="padSides" min="20" max="220" value="78">
-        <span class="small" id="padSidesVal">78</span>
-      </div>
-      <div class="range-line">
-        <span class="small">Inside safe buffer</span>
-        <input type="range" id="innerBuffer" min="0" max="120" value="24">
-        <span class="small" id="innerBufferVal">24</span>
-      </div>
-
-      <div class="small">Content box = where text is actually allowed to render. Safe zone = visual Instagram guide.</div>
-    </div>
-
-    <div class="section">
-      <h3>Display Controls</h3>
-      <label><input type="checkbox" id="showTimeToggle" checked> Show times</label>
-      <label><input type="checkbox" id="showGenreToggle" checked> Show genres in day view</label>
-      <label><input type="checkbox" id="showGuestsToggle" checked> Include guests in day / lineup</label>
-      <label><input type="checkbox" id="autoFitToggle" checked> Auto-fit content to box</label>
-
-      <div class="field">
-        <span>Month label override</span>
-        <input id="monthLabelInput" placeholder="APRIL 2026">
-      </div>
-
-      <div class="range-line">
-        <span class="small">Day scale</span>
-        <input type="range" id="dayScaleRange" min="70" max="145" value="100">
-        <span class="small" id="dayScaleValue">100%</span>
-      </div>
-      <div class="range-line">
-        <span class="small">Month text size</span>
-        <input type="range" id="monthScaleRange" min="80" max="140" value="100">
-        <span class="small" id="monthScaleValue">100%</span>
-      </div>
-      <div class="range-line">
-        <span class="small">Week text size</span>
-        <input type="range" id="weekScaleRange" min="80" max="140" value="100">
-        <span class="small" id="weekScaleValue">100%</span>
-      </div>
-      <div class="range-line">
-        <span class="small">Lineup text size</span>
-        <input type="range" id="lineupScaleRange" min="75" max="140" value="100">
-        <span class="small" id="lineupScaleValue">100%</span>
-      </div>
-    </div>
-
-    <div class="section">
       <h3>Edit Selected Item</h3>
       <div class="selected" id="selectedInfo">Click a row or card in the preview to edit it.</div>
 
@@ -184,7 +92,7 @@ const CONTROL_MARKUP = `<div class="panel">
       <div class="row" style="margin-top:10px;">
         <button class="danger" id="resetOverridesBtn">RESET ALL OVERRIDES</button>
       </div>
-      <div class="footer-note">Mega mode now separates safe guide, content box, and auto-fit logic so the text stays well away from the edges.</div>
+      <div class="footer-note">Layout is locked for 9:16 video renders. Edit the schedule, choose a mode, then render.</div>
     </div>
   </div>
 
@@ -219,6 +127,27 @@ export default function ScheduleOverlayApp() {
     let currentMonthDate = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
     let currentWeekDate = new Date();
     let currentDayDate = new Date();
+    const LOCKED_LAYOUT = {
+      showTime:true,
+      showGenre:true,
+      showGuests:true,
+      monthLabelOverride:"",
+      dayScale:100,
+      monthScale:100,
+      weekScale:100,
+      lineupScale:100,
+      showSafeZone:false,
+      showContentBox:false,
+      extraDayPadding:true,
+      autoFit:true,
+      safeTop:140,
+      safeBottom:180,
+      safeSides:40,
+      padTop:180,
+      padBottom:250,
+      padSides:78,
+      innerBuffer:24
+    };
     
     function loadOverrides(){
       try{ return JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}"); }
@@ -230,76 +159,29 @@ export default function ScheduleOverlayApp() {
     }
     
     function loadUIState(){
+      const defaults = {
+        videoPreview:true,
+        transparent:false,
+        animate:true,
+        mesh:false,
+        blur:false,
+        overlay:true,
+        meshSpeed:10,
+        color1:"#ff5a00",
+        color2:"#ff1f00",
+        color3:"#120000",
+        color4:"#000000",
+        ...LOCKED_LAYOUT
+      };
+
       try{
         return {
-          videoPreview:true,
-          transparent:false,
-          animate:true,
-          showTime:true,
-          showGenre:true,
-          showGuests:true,
-          monthLabelOverride:"",
-          dayScale:100,
-          monthScale:100,
-          weekScale:100,
-          lineupScale:100,
-          mesh:false,
-          blur:false,
-          overlay:true,
-          meshSpeed:10,
-          color1:"#ff5a00",
-          color2:"#ff1f00",
-          color3:"#120000",
-          color4:"#000000",
-          showSafeZone:false,
-          showContentBox:false,
-          extraDayPadding:true,
-          autoFit:true,
-    
-          safeTop:140,
-          safeBottom:180,
-          safeSides:40,
-    
-          padTop:180,
-          padBottom:250,
-          padSides:78,
-          innerBuffer:24,
-    
-          ...JSON.parse(localStorage.getItem(UI_KEY) || "{}")
+          ...defaults,
+          ...JSON.parse(localStorage.getItem(UI_KEY) || "{}"),
+          ...LOCKED_LAYOUT
         };
       }catch{
-        return {
-          videoPreview:true,
-          transparent:false,
-          animate:true,
-          showTime:true,
-          showGenre:true,
-          showGuests:true,
-          monthLabelOverride:"",
-          dayScale:100,
-          monthScale:100,
-          weekScale:100,
-          lineupScale:100,
-          mesh:false,
-          blur:false,
-          overlay:true,
-          meshSpeed:10,
-          color1:"#ff5a00",
-          color2:"#ff1f00",
-          color3:"#120000",
-          color4:"#000000",
-          showSafeZone:false,
-          showContentBox:false,
-          extraDayPadding:true,
-          autoFit:true,
-          safeTop:140,
-          safeBottom:180,
-          safeSides:40,
-          padTop:180,
-          padBottom:250,
-          padSides:78,
-          innerBuffer:24
-        };
+        return defaults;
       }
     }
     
@@ -941,24 +823,6 @@ export default function ScheduleOverlayApp() {
       document.getElementById("transparentToggle").checked = UI.transparent;
       document.getElementById("videoPreviewToggle").checked = UI.videoPreview;
       document.getElementById("animateToggle").checked = UI.animate;
-      document.getElementById("showTimeToggle").checked = UI.showTime;
-      document.getElementById("showGenreToggle").checked = UI.showGenre;
-      document.getElementById("showGuestsToggle").checked = UI.showGuests;
-      document.getElementById("autoFitToggle").checked = UI.autoFit;
-    
-      document.getElementById("monthLabelInput").value = UI.monthLabelOverride || "";
-    
-      document.getElementById("dayScaleRange").value = UI.dayScale;
-      document.getElementById("dayScaleValue").textContent = `${UI.dayScale}%`;
-    
-      document.getElementById("monthScaleRange").value = UI.monthScale;
-      document.getElementById("monthScaleValue").textContent = `${UI.monthScale}%`;
-    
-      document.getElementById("weekScaleRange").value = UI.weekScale;
-      document.getElementById("weekScaleValue").textContent = `${UI.weekScale}%`;
-    
-      document.getElementById("lineupScaleRange").value = UI.lineupScale;
-      document.getElementById("lineupScaleValue").textContent = `${UI.lineupScale}%`;
     
       document.getElementById("meshToggle").checked = UI.mesh;
       document.getElementById("blurToggle").checked = UI.blur;
@@ -971,15 +835,6 @@ export default function ScheduleOverlayApp() {
     
       document.getElementById("meshSpeedRange").value = UI.meshSpeed;
       document.getElementById("meshSpeedValue").textContent = String(UI.meshSpeed);
-    
-      document.getElementById("safeZoneToggle").checked = UI.showSafeZone;
-      document.getElementById("contentBoxToggle").checked = UI.showContentBox;
-      document.getElementById("extraDayPaddingToggle").checked = UI.extraDayPadding;
-    
-      [["safeTop","safeTopVal"],["safeBottom","safeBottomVal"],["safeSides","safeSidesVal"],["padTop","padTopVal"],["padBottom","padBottomVal"],["padSides","padSidesVal"],["innerBuffer","innerBufferVal"]].forEach(([id,valId]) => {
-        document.getElementById(id).value = UI[id];
-        document.getElementById(valId).textContent = UI[id];
-      });
     }
     
     function setMode(mode){
@@ -1252,42 +1107,6 @@ export default function ScheduleOverlayApp() {
       recorder.stop();
     }
     
-    function setPaddingPreset(type){
-      if (type === "tight"){
-        UI.safeTop = 120;
-        UI.safeBottom = 150;
-        UI.safeSides = 32;
-        UI.padTop = 150;
-        UI.padBottom = 200;
-        UI.padSides = 48;
-        UI.innerBuffer = 10;
-      }
-    
-      if (type === "balanced"){
-        UI.safeTop = 140;
-        UI.safeBottom = 180;
-        UI.safeSides = 40;
-        UI.padTop = 180;
-        UI.padBottom = 250;
-        UI.padSides = 78;
-        UI.innerBuffer = 24;
-      }
-    
-      if (type === "safe"){
-        UI.safeTop = 160;
-        UI.safeBottom = 240;
-        UI.safeSides = 52;
-        UI.padTop = 220;
-        UI.padBottom = 300;
-        UI.padSides = 96;
-        UI.innerBuffer = 34;
-      }
-    
-      saveUIState();
-      syncControlsToUI();
-      render();
-    }
-    
     function bindUICheckbox(id, key){
       document.getElementById(id).addEventListener("change", e => {
         UI[key] = e.target.checked;
@@ -1374,43 +1193,14 @@ export default function ScheduleOverlayApp() {
     document.getElementById("clearEditBtn").addEventListener("click", clearCurrentEdit);
     document.getElementById("resetOverridesBtn").addEventListener("click", resetAllOverrides);
     
-    document.getElementById("presetTightBtn").addEventListener("click", () => setPaddingPreset("tight"));
-    document.getElementById("presetBalancedBtn").addEventListener("click", () => setPaddingPreset("balanced"));
-    document.getElementById("presetSafeBtn").addEventListener("click", () => setPaddingPreset("safe"));
-    
     bindUICheckbox("transparentToggle", "transparent");
     bindUICheckbox("videoPreviewToggle", "videoPreview");
     bindUICheckbox("animateToggle", "animate");
-    bindUICheckbox("showTimeToggle", "showTime");
-    bindUICheckbox("showGenreToggle", "showGenre");
-    bindUICheckbox("showGuestsToggle", "showGuests");
     bindUICheckbox("meshToggle", "mesh");
     bindUICheckbox("blurToggle", "blur");
     bindUICheckbox("overlayToggle", "overlay");
-    bindUICheckbox("safeZoneToggle", "showSafeZone");
-    bindUICheckbox("contentBoxToggle", "showContentBox");
-    bindUICheckbox("extraDayPaddingToggle", "extraDayPadding");
-    bindUICheckbox("autoFitToggle", "autoFit");
-    
-    document.getElementById("monthLabelInput").addEventListener("input", e => {
-      UI.monthLabelOverride = e.target.value;
-      saveUIState();
-      render();
-    });
-    
-    bindRangeNumber("dayScaleRange", "dayScaleValue", "dayScale", "%");
-    bindRangeNumber("monthScaleRange", "monthScaleValue", "monthScale", "%");
-    bindRangeNumber("weekScaleRange", "weekScaleValue", "weekScale", "%");
-    bindRangeNumber("lineupScaleRange", "lineupScaleValue", "lineupScale", "%");
     
     bindRangeNumber("meshSpeedRange", "meshSpeedValue", "meshSpeed", "");
-    bindRangeNumber("safeTop", "safeTopVal", "safeTop", "");
-    bindRangeNumber("safeBottom", "safeBottomVal", "safeBottom", "");
-    bindRangeNumber("safeSides", "safeSidesVal", "safeSides", "");
-    bindRangeNumber("padTop", "padTopVal", "padTop", "");
-    bindRangeNumber("padBottom", "padBottomVal", "padBottom", "");
-    bindRangeNumber("padSides", "padSidesVal", "padSides", "");
-    bindRangeNumber("innerBuffer", "innerBufferVal", "innerBuffer", "");
     
     ["color1","color2","color3","color4"].forEach(id => {
       document.getElementById(id).addEventListener("input", e => {
