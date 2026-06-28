@@ -14,9 +14,9 @@ const CONTROL_MARKUP = `<div class="panel">
     <div class="section">
       <h3>Mode</h3>
       <div class="seg" id="modeSeg">
-        <button class="active" data-mode="month">MONTH</button>
+        <button data-mode="month">MONTH</button>
         <button data-mode="week">WEEK</button>
-        <button data-mode="day">DAY</button>
+        <button class="active" data-mode="day">DAY</button>
         <button data-mode="tonight">TONIGHT</button>
         <button data-mode="lineup">LINEUP</button>
       </div>
@@ -64,7 +64,7 @@ const CONTROL_MARKUP = `<div class="panel">
       </div>
     </div>
 
-    <div class="section">
+    <div class="section" id="editSection">
       <h3>Edit Selected Item</h3>
       <div class="selected" id="selectedInfo">Click a row or card in the preview to edit it.</div>
 
@@ -141,7 +141,7 @@ export default function ScheduleOverlayApp() {
     let ALL_ROWS = [];
     let OVERRIDES = loadOverrides();
     let UI = loadUIState();
-    let MODE = "month";
+    let MODE = "day";
     let LOOPING = false;
     let loopTimer = null;
     let SELECTED_ID = null;
@@ -397,8 +397,17 @@ export default function ScheduleOverlayApp() {
       SELECTED_ID = row.__baseId || getRowId(row);
       populateEditor(row);
       const panel = document.querySelector(".panel");
+      const editSection = document.getElementById("editSection");
+      const titleInput = document.getElementById("editTitle");
       if (isMobileLayout()) setMobilePanelExpanded(true);
-      panel.scrollTo({ top: panel.scrollHeight * 0.55, behavior: "smooth" });
+      if (editSection){
+        editSection.scrollIntoView({ behavior: "smooth", block: "start" });
+      } else if (panel){
+        panel.scrollTo({ top: panel.scrollHeight * 0.55, behavior: "smooth" });
+      }
+      if (titleInput){
+        setTimeout(() => titleInput.focus({ preventScroll:true }), 220);
+      }
     }
     
     function createMeshCanvas(){
@@ -1234,7 +1243,7 @@ export default function ScheduleOverlayApp() {
         resetToday();
         clearStaleDefaultMonthLabel();
         syncControlsToUI();
-        setMode("month");
+        setMode("day");
       }
     });
 
