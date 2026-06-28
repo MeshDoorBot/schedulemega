@@ -346,6 +346,22 @@ body{margin:0;background:#111;}
     flex-direction:column;
   }
 
+  .story-site-link{
+    position:absolute;
+    left:50%;
+    bottom:110px;
+    z-index:3;
+    transform:translateX(-50%);
+    color:rgba(255,255,255,.72);
+    font-family:MeshFont,Defectica,Inter,system-ui,sans-serif;
+    font-size:26px;
+    line-height:1;
+    letter-spacing:.04em;
+    text-transform:lowercase;
+    white-space:nowrap;
+    pointer-events:none;
+  }
+
   .columns{
     flex:1;
     display:grid;

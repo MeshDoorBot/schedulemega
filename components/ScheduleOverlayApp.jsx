@@ -701,6 +701,11 @@ export default function ScheduleOverlayApp() {
       inner.appendChild(label);
       inner.appendChild(content);
       story.appendChild(inner);
+
+      const siteLink = document.createElement("div");
+      siteLink.className = "story-site-link";
+      siteLink.textContent = "meshradio.live";
+      story.appendChild(siteLink);
     
       if (UI.showSafeZone){
         const guide = document.createElement("div");
