@@ -37,9 +37,10 @@ const CONTROL_MARKUP = `<div class="panel">
         <button id="pngBtn">EXPORT PNG</button>
         <button id="transparentPngBtn">EXPORT ALPHA PNG</button>
         <button id="packBtn">EXPORT PACK ZIP</button>
-        <button id="videoBtn">EXPORT VIDEO</button>
+        <button id="videoBtn">RENDER VIDEO</button>
         <button id="loopBtn">START LOOP</button>
       </div>
+      <label><input type="checkbox" id="videoPreviewToggle" checked> Preview over background video</label>
       <label><input type="checkbox" id="transparentToggle"> Transparent preview</label>
       <label><input type="checkbox" id="animateToggle" checked> Animate content in</label>
       <div class="small">Alpha PNG forces a transparent export even if the preview is black.</div>
@@ -204,6 +205,7 @@ export default function ScheduleOverlayApp() {
     root.dataset.initialized = 'true';
 
     const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTavGvSojxM1vYpMv0FSoC-WzIK3IqTYPNl1SYbya4iV8VJUaEmHso7yghmGQPLJvwpsEMzKjbonPDz/pub?output=csv";
+    const BACKGROUND_VIDEO_URL = "/schedule-background.mp4";
     const STORAGE_KEY = "mesh_schedule_overrides_v5";
     const UI_KEY = "mesh_schedule_ui_v5";
     
@@ -230,6 +232,7 @@ export default function ScheduleOverlayApp() {
     function loadUIState(){
       try{
         return {
+          videoPreview:true,
           transparent:false,
           animate:true,
           showTime:true,
@@ -266,6 +269,7 @@ export default function ScheduleOverlayApp() {
         };
       }catch{
         return {
+          videoPreview:true,
           transparent:false,
           animate:true,
           showTime:true,
@@ -640,12 +644,28 @@ export default function ScheduleOverlayApp() {
       });
     }
     
-    function buildStoryNode({ mode = MODE, refDate = null, forExport = false } = {}){
+    function buildStoryNode({ mode = MODE, refDate = null, forExport = false, withVideo = false, transparentBackground = false, keepOverlay = false } = {}){
       const story = document.createElement("div");
       story.className = "story-canvas";
-      if (UI.transparent) story.classList.add("transparent");
+      const isTransparent = transparentBackground || UI.transparent;
+      if (isTransparent) story.classList.add("transparent");
+      if (withVideo) story.classList.add("with-video");
+      if (keepOverlay) story.classList.add("keep-overlay");
       if (!UI.animate || forExport) story.classList.add("no-anim");
-      story.style.background = UI.transparent ? "transparent" : "#000";
+      story.style.background = isTransparent ? "transparent" : "#000";
+    
+      if (withVideo){
+        const video = document.createElement("video");
+        video.className = "story-video-bg";
+        video.src = BACKGROUND_VIDEO_URL;
+        video.autoplay = true;
+        video.loop = true;
+        video.muted = true;
+        video.playsInline = true;
+        video.preload = "auto";
+        story.appendChild(video);
+        story.__backgroundVideo = video;
+      }
     
       let meshCanvas = null;
       if (UI.mesh){
@@ -653,7 +673,7 @@ export default function ScheduleOverlayApp() {
         story.appendChild(meshCanvas);
       }
     
-      if (UI.overlay && !UI.transparent){
+      if (UI.overlay && (!isTransparent || keepOverlay)){
         const overlay = document.createElement("div");
         overlay.className = "story-overlay";
         story.appendChild(overlay);
@@ -830,7 +850,11 @@ export default function ScheduleOverlayApp() {
     
       viewport.style.opacity = "0";
       viewport.innerHTML = "";
-      viewport.appendChild(buildStoryNode());
+      const storyNode = buildStoryNode({ withVideo: UI.videoPreview });
+      viewport.appendChild(storyNode);
+      if (storyNode.__backgroundVideo){
+        storyNode.__backgroundVideo.play().catch(() => {});
+      }
     
       requestAnimationFrame(() => {
         const frameWidth = frame.clientWidth;
@@ -915,6 +939,7 @@ export default function ScheduleOverlayApp() {
     
     function syncControlsToUI(){
       document.getElementById("transparentToggle").checked = UI.transparent;
+      document.getElementById("videoPreviewToggle").checked = UI.videoPreview;
       document.getElementById("animateToggle").checked = UI.animate;
       document.getElementById("showTimeToggle").checked = UI.showTime;
       document.getElementById("showGenreToggle").checked = UI.showGenre;
@@ -1135,13 +1160,66 @@ export default function ScheduleOverlayApp() {
       setTimeout(() => URL.revokeObjectURL(link.href), 2000);
     }
     
+    function loadBackgroundVideo(){
+      return new Promise((resolve, reject) => {
+        const video = document.createElement("video");
+        video.src = BACKGROUND_VIDEO_URL;
+        video.crossOrigin = "anonymous";
+        video.playsInline = true;
+        video.preload = "auto";
+    
+        video.addEventListener("loadedmetadata", () => resolve(video), { once:true });
+        video.addEventListener("error", () => reject(new Error("Background video could not be loaded.")), { once:true });
+        video.load();
+      });
+    }
+    
+    function drawCoverVideo(ctx, video, width, height){
+      const videoRatio = video.videoWidth / video.videoHeight;
+      const canvasRatio = width / height;
+      let drawWidth = width;
+      let drawHeight = height;
+      let x = 0;
+      let y = 0;
+    
+      if (videoRatio > canvasRatio){
+        drawHeight = height;
+        drawWidth = height * videoRatio;
+        x = (width - drawWidth) / 2;
+      } else {
+        drawWidth = width;
+        drawHeight = width / videoRatio;
+        y = (height - drawHeight) / 2;
+      }
+    
+      ctx.drawImage(video, x, y, drawWidth, drawHeight);
+    }
+    
+    async function captureTransparentOverlay(){
+      const node = buildStoryNode({
+        mode: MODE,
+        forExport: true,
+        transparentBackground: true,
+        keepOverlay: true
+      });
+      return await captureStoryNode(node, true);
+    }
+    
     async function exportVideo(){
       const canvas = document.createElement("canvas");
       canvas.width = 1080;
       canvas.height = 1920;
       const ctx = canvas.getContext("2d");
+      const video = await loadBackgroundVideo();
+      const overlayCanvas = await captureTransparentOverlay();
+      video.currentTime = 0;
+      await video.play();
     
       const stream = canvas.captureStream(30);
+      if (video.captureStream){
+        const videoStream = video.captureStream();
+        videoStream.getAudioTracks().forEach(track => stream.addTrack(track));
+      }
       const mimeTypes = ["video/webm;codecs=vp9","video/webm;codecs=vp8","video/webm"];
       const chosen = mimeTypes.find(t => MediaRecorder.isTypeSupported(t)) || "video/webm";
     
@@ -1157,35 +1235,18 @@ export default function ScheduleOverlayApp() {
         const url = URL.createObjectURL(blob);
         const a = document.createElement("a");
         a.href = url;
-        a.download = `mesh-${MODE}-loop.webm`;
+        a.download = `mesh-${MODE}-over-video.webm`;
         a.click();
         setTimeout(() => URL.revokeObjectURL(url), 2000);
       };
     
       recorder.start();
     
-      const seq = [
-        { mode:"month", hold:1200 },
-        { mode:"week", hold:1200 },
-        { mode:"day", hold:1200 },
-        { mode:"tonight", hold:1400 },
-        { mode:"lineup", hold:1200 }
-      ];
-    
-      for (const step of seq){
-        const node = buildStoryNode({ mode: step.mode, forExport: true });
-        const shot = await captureStoryNode(node, false);
-        const start = performance.now();
-    
-        while (performance.now() - start < step.hold){
-          ctx.clearRect(0,0,1080,1920);
-          if (!UI.transparent){
-            ctx.fillStyle = "#000";
-            ctx.fillRect(0,0,1080,1920);
-          }
-          ctx.drawImage(shot,0,0);
-          await new Promise(r => requestAnimationFrame(r));
-        }
+      while (!video.ended){
+        ctx.clearRect(0,0,1080,1920);
+        drawCoverVideo(ctx, video, 1080, 1920);
+        ctx.drawImage(overlayCanvas, 0, 0);
+        await new Promise(r => requestAnimationFrame(r));
       }
     
       recorder.stop();
@@ -1318,6 +1379,7 @@ export default function ScheduleOverlayApp() {
     document.getElementById("presetSafeBtn").addEventListener("click", () => setPaddingPreset("safe"));
     
     bindUICheckbox("transparentToggle", "transparent");
+    bindUICheckbox("videoPreviewToggle", "videoPreview");
     bindUICheckbox("animateToggle", "animate");
     bindUICheckbox("showTimeToggle", "showTime");
     bindUICheckbox("showGenreToggle", "showGenre");
