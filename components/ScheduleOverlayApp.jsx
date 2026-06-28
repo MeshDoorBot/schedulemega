@@ -46,24 +46,6 @@ const CONTROL_MARKUP = `<div class="panel">
       <div class="small">Alpha PNG forces a transparent export even if the preview is black.</div>
     </div>
 
-    <div class="section">
-      <h3>Background</h3>
-      <label><input type="checkbox" id="meshToggle"> Mesh animated background</label>
-      <label><input type="checkbox" id="blurToggle"> Blur mesh</label>
-      <label><input type="checkbox" id="overlayToggle" checked> Dark overlay on top of mesh</label>
-      <div class="row">
-        <input type="color" id="color1" value="#ff5a00">
-        <input type="color" id="color2" value="#ff1f00">
-        <input type="color" id="color3" value="#120000">
-        <input type="color" id="color4" value="#000000">
-      </div>
-      <div class="range-line">
-        <span class="small">Mesh speed</span>
-        <input type="range" id="meshSpeedRange" min="1" max="30" value="10">
-        <span class="small" id="meshSpeedValue">10</span>
-      </div>
-    </div>
-
     <div class="section" id="editSection">
       <h3>Edit Selected Item</h3>
       <div class="selected" id="selectedInfo">Click a row or card in the preview to edit it.</div>
@@ -137,6 +119,16 @@ export default function ScheduleOverlayApp() {
       padSides:78,
       innerBuffer:24
     };
+    const LOCKED_BACKGROUND = {
+      mesh:false,
+      blur:false,
+      overlay:true,
+      meshSpeed:10,
+      color1:"#ff5a00",
+      color2:"#ff1f00",
+      color3:"#120000",
+      color4:"#000000"
+    };
     
     let ALL_ROWS = [];
     let OVERRIDES = loadOverrides();
@@ -163,14 +155,7 @@ export default function ScheduleOverlayApp() {
         videoPreview:true,
         transparent:false,
         animate:true,
-        mesh:false,
-        blur:false,
-        overlay:true,
-        meshSpeed:10,
-        color1:"#ff5a00",
-        color2:"#ff1f00",
-        color3:"#120000",
-        color4:"#000000",
+        ...LOCKED_BACKGROUND,
         ...LOCKED_LAYOUT
       };
 
@@ -178,6 +163,7 @@ export default function ScheduleOverlayApp() {
         return {
           ...defaults,
           ...JSON.parse(localStorage.getItem(UI_KEY) || "{}"),
+          ...LOCKED_BACKGROUND,
           ...LOCKED_LAYOUT
         };
       }catch{
@@ -837,18 +823,6 @@ export default function ScheduleOverlayApp() {
       document.getElementById("transparentToggle").checked = UI.transparent;
       document.getElementById("videoPreviewToggle").checked = UI.videoPreview;
       document.getElementById("animateToggle").checked = UI.animate;
-    
-      document.getElementById("meshToggle").checked = UI.mesh;
-      document.getElementById("blurToggle").checked = UI.blur;
-      document.getElementById("overlayToggle").checked = UI.overlay;
-    
-      document.getElementById("color1").value = UI.color1;
-      document.getElementById("color2").value = UI.color2;
-      document.getElementById("color3").value = UI.color3;
-      document.getElementById("color4").value = UI.color4;
-    
-      document.getElementById("meshSpeedRange").value = UI.meshSpeed;
-      document.getElementById("meshSpeedValue").textContent = String(UI.meshSpeed);
     }
     
     function setMode(mode){
@@ -1210,19 +1184,6 @@ export default function ScheduleOverlayApp() {
     bindUICheckbox("transparentToggle", "transparent");
     bindUICheckbox("videoPreviewToggle", "videoPreview");
     bindUICheckbox("animateToggle", "animate");
-    bindUICheckbox("meshToggle", "mesh");
-    bindUICheckbox("blurToggle", "blur");
-    bindUICheckbox("overlayToggle", "overlay");
-    
-    bindRangeNumber("meshSpeedRange", "meshSpeedValue", "meshSpeed", "");
-    
-    ["color1","color2","color3","color4"].forEach(id => {
-      document.getElementById(id).addEventListener("input", e => {
-        UI[id] = e.target.value;
-        saveUIState();
-        render();
-      });
-    });
     
     window.addEventListener("resize", updatePreview);
     
